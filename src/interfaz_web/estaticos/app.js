@@ -47,6 +47,7 @@ function opcionPorValor(campo, valor) {
   return opciones[campo].find((o) => o.valor === valor);
 }
 
+el("intro-retrato").innerHTML = ICONOS.RETRATO();
 el("intro-logo").innerHTML = ICONOS.LOGO();
 el("marca-logo").innerHTML = ICONOS.LOGO();
 el("intro-nota").innerHTML = ICONOS.UTIL.info + " Calculado por el motor de visagismo en el servidor.";

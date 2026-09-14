@@ -56,6 +56,7 @@ function opcionPorValor(campo, valor) {
 // ICONOS.LOGO() genera un id de degradado nuevo en cada llamada para
 // que las dos instancias en la pagina no choquen de id.
 
+el("intro-retrato").innerHTML = ICONOS.RETRATO();
 el("intro-logo").innerHTML = ICONOS.LOGO();
 el("marca-logo").innerHTML = ICONOS.LOGO();
 el("intro-nota").innerHTML = ICONOS.UTIL.info + " Todo el cálculo ocurre en este navegador, sin conexión.";
