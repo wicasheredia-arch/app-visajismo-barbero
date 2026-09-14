@@ -11,18 +11,31 @@
 })(typeof window !== "undefined" ? window : globalThis, function () {
   "use strict";
 
-  // Marca: perfil facial minimalista cruzado por un eje de
-  // proporcion (la idea central del visagismo: medir y equilibrar),
-  // dentro de un anillo de precision. Trazo unico, sin relleno.
-  var LOGO = (
-    '<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="VISAGE">' +
-    '<circle cx="24" cy="24" r="21.5" stroke="currentColor" stroke-opacity="0.35" stroke-width="1"/>' +
-    '<path d="M18 10.5c3.6-1 7 .3 8.6 3.4 1 2 1.1 4-.1 6.4-.9 1.8-1 2.9-.2 4.4.9 1.7 2.6 2.3 2.6 4.4 0 3.1-3.2 5.4-6.9 5.9" ' +
-    'stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>' +
-    '<path d="M12.5 27.5 L34 20" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-opacity="0.75"/>' +
-    '<circle cx="23.2" cy="23.9" r="1.6" fill="currentColor"/>' +
-    "</svg>"
-  );
+  // Marca VISAGE: una "V" solida en degrade dorado (de Visage, y a
+  // la vez la forma de una mandibula/perfil en barberia) con un
+  // perfil facial minimalista trazado en el espacio negativo
+  // interior. A tamano grande se lee como rostro + V; a tamano de
+  // favicon el detalle del perfil se simplifica visualmente y queda
+  // una V limpia y solida -- nunca un icono roto o con huecos.
+  // Es una funcion (no un string fijo) porque el degradado necesita
+  // un id unico por cada instancia insertada en la pagina (aparece
+  // tanto en la pantalla de bienvenida como en el encabezado).
+  var _contadorLogo = 0;
+  function LOGO() {
+    _contadorLogo += 1;
+    var idGrad = "gradoVisage" + _contadorLogo;
+    return (
+      '<svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="VISAGE">' +
+      '<defs><linearGradient id="' + idGrad + '" x1="0%" y1="0%" x2="100%" y2="100%">' +
+      '<stop offset="0%" stop-color="#f0d9a8"/><stop offset="55%" stop-color="#c9a15e"/><stop offset="100%" stop-color="#8a6530"/>' +
+      "</linearGradient></defs>" +
+      '<path d="M16,8 L48,80 L80,8" stroke="url(#' + idGrad + ')" stroke-width="14" ' +
+      'stroke-linecap="round" stroke-linejoin="round"/>' +
+      '<path d="M38,18 C45,16 51,20 52,26 C53,31 51,35 53,39 C55,43 57,45 55,49 C53,53 48,55 43,54" ' +
+      'stroke="#f4efe6" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>' +
+      "</svg>"
+    );
+  }
 
   // Glifos de forma de rostro: siluetas cerradas, mismo lenguaje de
   // linea, proporciones distintas para que cada forma se reconozca

@@ -28,6 +28,8 @@
 
   --champan: #c9a15e;
   --champan-vivo: #e4c58a;
+  --champan-clara: #f0d9a8;
+  --champan-oscura: #8a6530;
   --champan-tenue: rgba(201, 161, 94, 0.14);
   --champan-borde: rgba(201, 161, 94, 0.35);
 
@@ -97,6 +99,105 @@ h1, h2, h3 {
   margin: 0 auto;
   padding: 1.75rem 1.25rem 4rem;
 }
+
+/* ---------------------------------------------------------------- */
+/* Pantalla de bienvenida (hero)                                     */
+/* ---------------------------------------------------------------- */
+
+.pantalla-intro {
+  position: relative;
+  min-height: 82svh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2rem 1rem;
+  overflow: hidden;
+  animation: entrar-paso 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.intro-resplandor {
+  position: absolute;
+  inset: -18% -25% auto -25%;
+  height: 62%;
+  background: radial-gradient(ellipse at 28% 12%, rgba(201, 161, 94, 0.32), transparent 65%);
+  pointer-events: none;
+}
+
+.intro-logo-envoltura {
+  width: 86px;
+  height: 86px;
+  margin: 0 0 1.15rem;
+}
+
+.intro-logo-envoltura svg { width: 100%; height: 100%; }
+
+.marca-nombre--hero {
+  font-family: var(--fuente-display);
+  font-size: clamp(2.5rem, 12vw, 3.5rem);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  line-height: 1;
+  margin: 0 0 0.65rem;
+  background: linear-gradient(180deg, var(--champan-vivo) 10%, var(--champan) 55%, var(--champan-oscura) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.intro-eyebrow {
+  margin: 0 0 1.5rem;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--champan);
+}
+
+.intro-regla {
+  display: block;
+  width: 46px;
+  height: 2px;
+  margin: 0 0 1.5rem;
+  background: linear-gradient(90deg, transparent, var(--champan), transparent);
+}
+
+.intro-tagline {
+  margin: 0 0 2.5rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--piedra);
+  line-height: 1.9;
+}
+
+.boton-primario.boton-comenzar {
+  flex: none;
+  width: auto;
+  padding: 0 2.3rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+}
+
+.flecha-boton { display: inline-flex; transition: transform 0.2s ease; }
+.boton-comenzar:hover .flecha-boton { transform: translateX(3px); }
+
+.intro-nota {
+  margin-top: 2.25rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.02em;
+  color: var(--piedra-tenue);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+}
+
+.intro-nota svg { flex: none; width: 13px; height: 13px; }
 
 /* ---------------------------------------------------------------- */
 /* Encabezado / marca                                               */

@@ -47,7 +47,9 @@ function opcionPorValor(campo, valor) {
   return opciones[campo].find((o) => o.valor === valor);
 }
 
-el("marca-logo").innerHTML = ICONOS.LOGO;
+el("intro-logo").innerHTML = ICONOS.LOGO();
+el("marca-logo").innerHTML = ICONOS.LOGO();
+el("intro-nota").innerHTML = ICONOS.UTIL.info + " Calculado por el motor de visagismo en el servidor.";
 el("nota-pie").innerHTML = ICONOS.UTIL.info + " Calculado por el motor de visagismo en el servidor.";
 
 async function cargarOpciones() {
@@ -57,11 +59,23 @@ async function cargarOpciones() {
 }
 
 function mostrarSeccion(idVisible) {
+  el("intro").hidden = idVisible !== "intro";
+  el("marca-header").hidden = idVisible === "intro";
+  el("nota-pie").hidden = idVisible === "intro";
   ["asistente", "cargando", "resultados"].forEach((id) => {
     el(id).hidden = id !== idVisible;
   });
   el("stepper").hidden = idVisible !== "asistente";
 }
+
+el("btn-comenzar").addEventListener("click", async () => {
+  try {
+    await opcionesListas;
+    renderPaso();
+  } catch (error) {
+    // El error ya se muestra desde opcionesListas.catch() mas abajo.
+  }
+});
 
 function ocultarError() {
   el("error-global").hidden = true;
@@ -291,12 +305,13 @@ function crearTarjetaRecomendacion(rec, posicion) {
   return tarjeta;
 }
 
-(async function iniciar() {
-  try {
-    await cargarOpciones();
-    renderPaso();
-  } catch (error) {
-    mostrarSeccion("asistente");
-    mostrarError("No se pudieron cargar las opciones del diagnóstico. Recarga la página.");
-  }
-})();
+// La pantalla de bienvenida no depende de las opciones del catalogo,
+// asi que se muestra de inmediato; las opciones se cargan en paralelo
+// y "Comenzar" espera esa promesa (normalmente ya resuelta para
+// cuando el barbero hace clic).
+const opcionesListas = cargarOpciones().catch((error) => {
+  mostrarError("No se pudieron cargar las opciones del diagnóstico. Recarga la página.");
+  throw error;
+});
+
+mostrarSeccion("intro");

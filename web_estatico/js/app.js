@@ -52,18 +52,29 @@ function opcionPorValor(campo, valor) {
   return opciones[campo].find((o) => o.valor === valor);
 }
 
-// -- Marca (logo en el encabezado) -----------------------------------
+// -- Marca (logo de bienvenida + logo compacto del encabezado) --------
+// ICONOS.LOGO() genera un id de degradado nuevo en cada llamada para
+// que las dos instancias en la pagina no choquen de id.
 
-el("marca-logo").innerHTML = ICONOS.LOGO;
+el("intro-logo").innerHTML = ICONOS.LOGO();
+el("marca-logo").innerHTML = ICONOS.LOGO();
+el("intro-nota").innerHTML = ICONOS.UTIL.info + " Todo el cálculo ocurre en este navegador, sin conexión.";
 el("nota-pie").innerHTML = ICONOS.UTIL.info + " Todo el cálculo ocurre en este mismo navegador, sin conexión.";
 
 // -- Navegacion entre secciones ---------------------------------------
 
 function mostrarSeccion(idVisible) {
+  el("intro").hidden = idVisible !== "intro";
+  el("marca-header").hidden = idVisible === "intro";
+  el("nota-pie").hidden = idVisible === "intro";
   el("stepper").hidden = idVisible !== "asistente";
   el("asistente").hidden = idVisible !== "asistente";
   el("resultados").hidden = idVisible !== "resultados";
 }
+
+el("btn-comenzar").addEventListener("click", () => {
+  renderPaso();
+});
 
 function ocultarError() {
   el("error-global").hidden = true;
@@ -297,4 +308,4 @@ function crearTarjetaRecomendacion(rec, posicion) {
   return tarjeta;
 }
 
-renderPaso();
+mostrarSeccion("intro");
