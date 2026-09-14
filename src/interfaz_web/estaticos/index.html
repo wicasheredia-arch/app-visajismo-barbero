@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Recomendador de cortes</title>
+<link rel="stylesheet" href="/estilos.css">
+</head>
+<body>
+  <header class="encabezado">
+    <h1>Recomendador de cortes</h1>
+    <p class="subtitulo">Diagnóstico rápido de rostro y cabello para elegir el corte ideal</p>
+  </header>
+
+  <main class="contenedor">
+    <ol class="progreso" id="progreso">
+      <li data-paso="0">Rostro</li>
+      <li data-paso="1">Textura</li>
+      <li data-paso="2">Densidad</li>
+      <li data-paso="3">Grosor</li>
+    </ol>
+
+    <section id="asistente" class="tarjeta">
+      <h2 id="titulo-paso"></h2>
+      <div class="opciones" id="opciones-paso"></div>
+      <div class="navegacion">
+        <button id="btn-atras" class="boton boton-secundario" type="button" hidden>Atrás</button>
+        <button id="btn-siguiente" class="boton boton-primario" type="button" disabled>Siguiente</button>
+      </div>
+    </section>
+
+    <section id="cargando" class="tarjeta estado-carga" hidden>
+      <p>Generando recomendaciones…</p>
+    </section>
+
+    <p id="error-global" class="tarjeta-error" hidden></p>
+
+    <section id="resultados" hidden>
+      <h2>Recomendaciones</h2>
+      <p id="mensaje-vacio" class="tarjeta-vacio" hidden></p>
+      <div id="lista-recomendaciones" class="lista-recomendaciones"></div>
+      <button id="btn-reiniciar" class="boton boton-primario" type="button">Nuevo diagnóstico</button>
+    </section>
+  </main>
+
+  <script src="/app.js"></script>
+</body>
+</html>
