@@ -19,11 +19,12 @@ _DIR_ESTATICOS = Path(__file__).resolve().parent / "estaticos"
 
 # Mapa explicito de ruta -> (archivo, content-type). Se evita un
 # servidor de archivos generico para no abrir la puerta a path
-# traversal: solo se sirven exactamente estos 3 archivos conocidos.
+# traversal: solo se sirven exactamente estos archivos conocidos.
 _RUTAS_ESTATICAS = {
     "/": ("index.html", "text/html; charset=utf-8"),
     "/index.html": ("index.html", "text/html; charset=utf-8"),
     "/estilos.css": ("estilos.css", "text/css; charset=utf-8"),
+    "/iconos.js": ("iconos.js", "application/javascript; charset=utf-8"),
     "/app.js": ("app.js", "application/javascript; charset=utf-8"),
 }
 

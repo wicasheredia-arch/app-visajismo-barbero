@@ -1,24 +1,54 @@
 "use strict";
 
-// Asistente paso a paso: rostro -> textura -> densidad -> grosor -> recomendaciones.
-// Las opciones de cada paso NO estan hardcodeadas aqui: se piden a
-// /api/opciones, que las lee de los mismos enums cerrados del
-// catalogo (una sola fuente de verdad).
+// Capa de PRESENTACION del asistente VISAGE (version servida por
+// Python). No calcula nada de visagismo: pide los datos a
+// /api/opciones y /api/recomendacion (backend en src/entrada_salida,
+// sin tocar) y solo decide como mostrarlos.
 
 const CAMPOS = ["forma_rostro", "textura", "densidad", "grosor"];
-const TITULOS = {
+
+const ETIQUETAS_PASO = {
+  forma_rostro: "Forma del rostro",
+  textura: "Textura del cabello",
+  densidad: "Densidad",
+  grosor: "Grosor",
+};
+
+const PREGUNTAS_PASO = {
   forma_rostro: "¿Qué forma de rostro tiene el cliente?",
   textura: "¿Qué textura de cabello tiene?",
   densidad: "¿Qué densidad de cabello tiene?",
   grosor: "¿Qué grosor de cabello tiene?",
 };
-const ETIQUETA_TEXTO = { solido: "SÓLIDO", aceptable: "ACEPTABLE", debil: "DÉBIL" };
+
+const GLIFOS_POR_CAMPO = {
+  forma_rostro: ICONOS.ROSTRO,
+  textura: ICONOS.TEXTURA,
+  densidad: ICONOS.DENSIDAD,
+  grosor: ICONOS.GROSOR,
+};
+
+const ETIQUETA_TEXTO = { solido: "Sólido", aceptable: "Aceptable", debil: "Débil" };
+
+// Correccion tipografica de presentacion (acentos), nunca usada para
+// calcular nada -- ver equivalente en web_estatico/js/app.js.
+const CORRECCION_TIPOGRAFICA = { Corazon: "Corazón" };
+function etiquetaVisible(texto) {
+  return CORRECCION_TIPOGRAFICA[texto] || texto;
+}
 
 let opciones = null;
 let paso = 0;
 const seleccion = { forma_rostro: null, textura: null, densidad: null, grosor: null };
 
 const el = (id) => document.getElementById(id);
+
+function opcionPorValor(campo, valor) {
+  return opciones[campo].find((o) => o.valor === valor);
+}
+
+el("marca-logo").innerHTML = ICONOS.LOGO;
+el("nota-pie").innerHTML = ICONOS.UTIL.info + " Calculado por el motor de visagismo en el servidor.";
 
 async function cargarOpciones() {
   const respuesta = await fetch("/api/opciones");
@@ -30,6 +60,7 @@ function mostrarSeccion(idVisible) {
   ["asistente", "cargando", "resultados"].forEach((id) => {
     el(id).hidden = id !== idVisible;
   });
+  el("stepper").hidden = idVisible !== "asistente";
 }
 
 function ocultarError() {
@@ -37,7 +68,7 @@ function ocultarError() {
 }
 
 function mostrarError(mensaje) {
-  el("error-global").textContent = mensaje;
+  el("error-global").innerHTML = ICONOS.UTIL.error + `<span>${mensaje}</span>`;
   el("error-global").hidden = false;
 }
 
@@ -46,21 +77,28 @@ function renderPaso() {
   mostrarSeccion("asistente");
 
   const campo = CAMPOS[paso];
-  el("titulo-paso").textContent = TITULOS[campo];
+  el("eyebrow-paso").textContent = `Paso ${paso + 1} de ${CAMPOS.length} — ${ETIQUETAS_PASO[campo]}`;
+  el("titulo-paso").textContent = PREGUNTAS_PASO[campo];
 
   const contenedor = el("opciones-paso");
   contenedor.innerHTML = "";
-  for (const opcion of opciones[campo]) {
+  const glifos = GLIFOS_POR_CAMPO[campo];
+
+  opciones[campo].forEach((opcion) => {
     const boton = document.createElement("button");
     boton.type = "button";
     boton.className = "tarjeta-opcion";
     if (seleccion[campo] === opcion.valor) boton.classList.add("seleccionada");
-    boton.textContent = opcion.etiqueta;
+    boton.setAttribute("aria-pressed", seleccion[campo] === opcion.valor ? "true" : "false");
+    boton.innerHTML =
+      `<span class="glifo">${glifos[opcion.valor] || ""}</span>` +
+      `<span>${etiquetaVisible(opcion.etiqueta)}</span>` +
+      `<span class="marca-check">${ICONOS.UTIL.check}</span>`;
     boton.addEventListener("click", () => seleccionar(campo, opcion.valor));
     contenedor.appendChild(boton);
-  }
+  });
 
-  actualizarProgreso();
+  actualizarStepper();
   actualizarNavegacion();
 }
 
@@ -69,8 +107,10 @@ function seleccionar(campo, valor) {
   renderPaso();
 }
 
-function actualizarProgreso() {
-  document.querySelectorAll("#progreso li").forEach((li, indice) => {
+function actualizarStepper() {
+  const avance = (paso / (CAMPOS.length - 1)) * 100;
+  el("stepper").style.setProperty("--avance", `${avance}%`);
+  document.querySelectorAll("#stepper .paso").forEach((li, indice) => {
     li.classList.toggle("activo", indice === paso);
     li.classList.toggle("completo", indice < paso);
   });
@@ -78,7 +118,9 @@ function actualizarProgreso() {
 
 function actualizarNavegacion() {
   const campoActual = CAMPOS[paso];
-  el("btn-atras").hidden = paso === 0;
+  const btnAtras = el("btn-atras");
+  btnAtras.hidden = paso === 0;
+  btnAtras.innerHTML = ICONOS.UTIL.flecha + "<span>Atrás</span>";
   el("btn-siguiente").disabled = !seleccion[campoActual];
   el("btn-siguiente").textContent = paso === CAMPOS.length - 1 ? "Generar recomendaciones" : "Siguiente";
 }
@@ -129,58 +171,82 @@ async function generarRecomendaciones() {
   }
 }
 
-function mostrarResultados(datos) {
-  mostrarSeccion("resultados");
-  const lista = el("lista-recomendaciones");
-  const vacio = el("mensaje-vacio");
-  lista.innerHTML = "";
-
-  if (datos.mensaje_vacio) {
-    vacio.textContent = datos.mensaje_vacio;
-    vacio.hidden = false;
-    return;
-  }
-  vacio.hidden = true;
-  datos.recomendaciones.forEach((rec, indice) => {
-    lista.appendChild(crearTarjetaRecomendacion(rec, indice + 1));
+function renderResumenDiagnostico() {
+  const contenedor = el("resumen-diagnostico");
+  contenedor.innerHTML = "";
+  CAMPOS.forEach((campo) => {
+    const opcion = opcionPorValor(campo, seleccion[campo]);
+    const glifo = GLIFOS_POR_CAMPO[campo][seleccion[campo]] || "";
+    const item = document.createElement("div");
+    item.className = "resumen-item";
+    item.innerHTML =
+      `<span class="glifo">${glifo}</span>` +
+      `<span class="resumen-etiqueta">${ETIQUETAS_PASO[campo]}</span>` +
+      `<span class="resumen-valor">${opcion ? etiquetaVisible(opcion.etiqueta) : "—"}</span>`;
+    contenedor.appendChild(item);
   });
 }
 
-function crearBloque(titulo, texto, claseExtra) {
+function mostrarResultados(datos) {
+  mostrarSeccion("resultados");
+  renderResumenDiagnostico();
+
+  const bloqueRecomendaciones = el("bloque-recomendaciones");
+  const vacio = el("mensaje-vacio");
+  const lista = el("lista-recomendaciones");
+  lista.innerHTML = "";
+
+  if (datos.mensaje_vacio) {
+    bloqueRecomendaciones.hidden = true;
+    vacio.innerHTML = ICONOS.UTIL.advertencia + `<span>${datos.mensaje_vacio}</span>`;
+    vacio.hidden = false;
+    return;
+  }
+
+  vacio.hidden = true;
+  bloqueRecomendaciones.hidden = false;
+  datos.recomendaciones.forEach((rec, indice) => {
+    lista.appendChild(crearTarjetaRecomendacion(rec, indice + 1));
+  });
+
+  // Punto de extension preparado para una futura etapa (no
+  // implementada aun, sin datos ficticios): ver la misma nota en
+  // web_estatico/js/app.js -- aqui se podria anadir, por
+  // recomendacion, un bloque "Acabado sugerido" reutilizando
+  // .bloque-porque cuando exista un dato real del motor para ello.
+}
+
+function crearBloque(titulo, texto) {
   const div = document.createElement("div");
-  div.className = claseExtra ? `bloque ${claseExtra}` : "bloque";
-  const fuerte = document.createElement("strong");
-  fuerte.textContent = `${titulo}: `;
-  div.appendChild(fuerte);
-  div.appendChild(document.createTextNode(texto));
+  div.className = "bloque-porque";
+  div.innerHTML = `<span class="subtitulo-bloque">${titulo}</span><p>${texto}</p>`;
   return div;
 }
 
 function crearTarjetaRecomendacion(rec, posicion) {
+  const esTop = posicion === 1;
   const tarjeta = document.createElement("article");
-  tarjeta.className = "tarjeta-recomendacion";
+  tarjeta.className = "tarjeta-recomendacion" + (esTop ? " tarjeta-recomendacion--top" : "");
+  tarjeta.style.setProperty("--retraso", `${(posicion - 1) * 90}ms`);
 
-  const encabezado = document.createElement("div");
-  encabezado.className = "tarjeta-encabezado";
+  const cabecera = document.createElement("div");
+  cabecera.className = "tarjeta-recomendacion-cabecera";
 
-  const posicionSpan = document.createElement("span");
-  posicionSpan.className = "posicion";
-  posicionSpan.textContent = `#${posicion}`;
+  const numeral = document.createElement("span");
+  numeral.className = "numeral";
+  numeral.textContent = `0${posicion}`;
 
-  const titulo = document.createElement("h3");
-  titulo.textContent = rec.nombre;
+  const titulos = document.createElement("div");
+  titulos.className = "tarjeta-recomendacion-titulos";
+  titulos.innerHTML =
+    `<h3>${rec.nombre}</h3>` +
+    `<div class="meta-tarjeta">` +
+    `<span class="insignia insignia-${rec.etiqueta}">${ETIQUETA_TEXTO[rec.etiqueta] || rec.etiqueta}</span>` +
+    `<span class="familia">${rec.familia}</span>` +
+    `</div>`;
 
-  const insignia = document.createElement("span");
-  insignia.className = `insignia insignia-${rec.etiqueta}`;
-  insignia.textContent = ETIQUETA_TEXTO[rec.etiqueta] || rec.etiqueta;
-
-  encabezado.append(posicionSpan, titulo, insignia);
-  tarjeta.appendChild(encabezado);
-
-  const familia = document.createElement("p");
-  familia.className = "familia";
-  familia.textContent = `Familia: ${rec.familia}`;
-  tarjeta.appendChild(familia);
+  cabecera.append(numeral, titulos);
+  tarjeta.appendChild(cabecera);
 
   if (rec.efectos_visagismo && rec.efectos_visagismo.length) {
     const chips = document.createElement("div");
@@ -188,33 +254,39 @@ function crearTarjetaRecomendacion(rec, posicion) {
     rec.efectos_visagismo.forEach((efecto) => {
       const chip = document.createElement("span");
       chip.className = "chip";
-      chip.textContent = efecto.replaceAll("_", " ");
+      chip.textContent = efecto.replace(/_/g, " ");
       chips.appendChild(chip);
     });
     tarjeta.appendChild(chips);
   }
 
-  tarjeta.appendChild(crearBloque("Mecanismo", rec.mecanismo));
+  tarjeta.appendChild(crearBloque("¿Por qué funciona?", rec.mecanismo));
 
   if (rec.nota_tecnica_textura) {
-    tarjeta.appendChild(crearBloque("Nota técnica para esta textura", rec.nota_tecnica_textura, "nota-tecnica"));
+    const nota = document.createElement("div");
+    nota.className = "nota-tecnica";
+    nota.innerHTML = ICONOS.UTIL.info + `<span><strong>Nota técnica para esta textura:</strong> ${rec.nota_tecnica_textura}</span>`;
+    tarjeta.appendChild(nota);
   }
 
   if (rec.advertencias && rec.advertencias.length) {
     const bloqueAdvertencias = document.createElement("div");
-    bloqueAdvertencias.className = "bloque advertencias";
-    rec.advertencias.forEach((advertencia) => {
-      const p = document.createElement("p");
-      p.textContent = advertencia;
-      bloqueAdvertencias.appendChild(p);
+    bloqueAdvertencias.className = "advertencias";
+    rec.advertencias.forEach((texto) => {
+      const item = document.createElement("div");
+      item.className = "advertencia";
+      item.innerHTML = ICONOS.UTIL.advertencia + `<span>${texto}</span>`;
+      bloqueAdvertencias.appendChild(item);
     });
     tarjeta.appendChild(bloqueAdvertencias);
   }
 
-  const mantenimiento = document.createElement("p");
-  mantenimiento.className = "mantenimiento";
-  mantenimiento.textContent = `Mantenimiento: ${rec.mantenimiento}`;
-  tarjeta.appendChild(mantenimiento);
+  const pie = document.createElement("div");
+  pie.className = "pie-tarjeta";
+  pie.innerHTML =
+    `<span class="glifo">${ICONOS.UTIL.mantenimiento}</span>` +
+    `<span>Mantenimiento: <strong>${rec.mantenimiento}</strong></span>`;
+  tarjeta.appendChild(pie);
 
   return tarjeta;
 }

@@ -52,7 +52,10 @@ class TestInterfazWeb(unittest.TestCase):
         estado, cuerpo, tipo = self._get("/")
         self.assertEqual(estado, 200)
         self.assertIn("text/html", tipo)
-        self.assertIn(b"<title>Recomendador de cortes</title>", cuerpo)
+        # El titulo es contenido de presentacion (identidad visual
+        # VISAGE); este test solo confirma que la pagina se sirve con
+        # contenido real, no fija ninguna regla de negocio.
+        self.assertIn("<title>VISAGE".encode("utf-8"), cuerpo)
 
     def test_sirve_estilos_y_script(self):
         estado_css, _, tipo_css = self._get("/estilos.css")

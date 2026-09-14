@@ -3,46 +3,64 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Recomendador de cortes</title>
+<title>VISAGE — Diagnóstico de visagismo</title>
 <link rel="stylesheet" href="/estilos.css">
 </head>
 <body>
-  <header class="encabezado">
-    <h1>Recomendador de cortes</h1>
-    <p class="subtitulo">Diagnóstico rápido de rostro y cabello para elegir el corte ideal</p>
-  </header>
+  <main class="envoltura">
+    <header class="marca">
+      <span class="marca-marca-svg" id="marca-logo" aria-hidden="true"></span>
+      <div class="marca-texto">
+        <p class="marca-nombre">VISAGE</p>
+        <p class="marca-tagline">Diagnóstico&nbsp;de&nbsp;visagismo</p>
+      </div>
+    </header>
 
-  <main class="contenedor">
-    <ol class="progreso" id="progreso">
-      <li data-paso="0">Rostro</li>
-      <li data-paso="1">Textura</li>
-      <li data-paso="2">Densidad</li>
-      <li data-paso="3">Grosor</li>
+    <ol class="stepper" id="stepper">
+      <li class="paso" data-paso="0"><span class="nodo"></span><span class="etiqueta-nodo">Rostro</span></li>
+      <li class="paso" data-paso="1"><span class="nodo"></span><span class="etiqueta-nodo">Textura</span></li>
+      <li class="paso" data-paso="2"><span class="nodo"></span><span class="etiqueta-nodo">Densidad</span></li>
+      <li class="paso" data-paso="3"><span class="nodo"></span><span class="etiqueta-nodo">Grosor</span></li>
     </ol>
 
-    <section id="asistente" class="tarjeta">
+    <section id="asistente" class="superficie">
+      <span class="eyebrow" id="eyebrow-paso"></span>
       <h2 id="titulo-paso"></h2>
       <div class="opciones" id="opciones-paso"></div>
       <div class="navegacion">
-        <button id="btn-atras" class="boton boton-secundario" type="button" hidden>Atrás</button>
+        <button id="btn-atras" class="boton boton-secundario" type="button" hidden></button>
         <button id="btn-siguiente" class="boton boton-primario" type="button" disabled>Siguiente</button>
       </div>
     </section>
 
-    <section id="cargando" class="tarjeta estado-carga" hidden>
+    <section id="cargando" class="superficie estado-carga" hidden>
       <p>Generando recomendaciones…</p>
     </section>
 
-    <p id="error-global" class="tarjeta-error" hidden></p>
+    <p id="error-global" class="aviso aviso-error" hidden></p>
 
     <section id="resultados" hidden>
-      <h2>Recomendaciones</h2>
-      <p id="mensaje-vacio" class="tarjeta-vacio" hidden></p>
-      <div id="lista-recomendaciones" class="lista-recomendaciones"></div>
-      <button id="btn-reiniciar" class="boton boton-primario" type="button">Nuevo diagnóstico</button>
+      <div class="informe-cabecera">
+        <span class="eyebrow">Informe de visagismo</span>
+        <h2>Recomendaciones de corte</h2>
+      </div>
+
+      <div class="resumen-diagnostico" id="resumen-diagnostico"></div>
+
+      <p id="mensaje-vacio" class="aviso aviso-vacio" hidden></p>
+
+      <div id="bloque-recomendaciones">
+        <p class="titulo-seccion">Recomendaciones de corte</p>
+        <div id="lista-recomendaciones" class="lista-recomendaciones"></div>
+      </div>
+
+      <button id="btn-reiniciar" class="boton boton-fantasma" type="button">Nuevo diagnóstico</button>
     </section>
+
+    <p class="nota-pie" id="nota-pie"></p>
   </main>
 
+  <script src="/iconos.js"></script>
   <script src="/app.js"></script>
 </body>
 </html>
