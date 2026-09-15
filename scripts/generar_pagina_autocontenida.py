@@ -24,7 +24,12 @@ from pathlib import Path
 
 RAIZ = Path(__file__).resolve().parent.parent
 ORIGEN = RAIZ / "web_estatico"
-DESTINO = RAIZ / "docs" / "index.html"
+# Se escribe en dos destinos identicos a proposito: GitHub Pages puede
+# estar configurado con origen "main / (root)" o "main / docs" segun
+# como haya quedado el ajuste en Settings > Pages de cada quien -- en
+# vez de depender de que ese ajuste este correcto, la app funciona
+# igual sirviendola desde cualquiera de los dos.
+DESTINOS = [RAIZ / "docs" / "index.html", RAIZ / "index.html"]
 
 PATRON_CSS = re.compile(r'<link rel="stylesheet" href="([^"]+)">')
 PATRON_JS = re.compile(r'<script src="([^"]+)"></script>')
@@ -53,9 +58,10 @@ def main() -> None:
         print("ERROR: quedaron referencias externas sin inlinear.", file=sys.stderr)
         sys.exit(1)
 
-    DESTINO.parent.mkdir(parents=True, exist_ok=True)
-    DESTINO.write_text(pagina_final, encoding="utf-8")
-    print(f"Generado: {DESTINO} ({len(pagina_final)} bytes, autocontenido)")
+    for destino in DESTINOS:
+        destino.parent.mkdir(parents=True, exist_ok=True)
+        destino.write_text(pagina_final, encoding="utf-8")
+        print(f"Generado: {destino} ({len(pagina_final)} bytes, autocontenido)")
 
 
 if __name__ == "__main__":

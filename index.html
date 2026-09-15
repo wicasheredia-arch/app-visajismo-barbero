@@ -1,0 +1,2670 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VISAGE — Diagnóstico de visagismo</title>
+<style>
+/*
+  VISAGE — identidad visual del diagnostico de visagismo.
+
+  Paleta: onyx/carbon (fondo), champan (acento de marca, uso
+  discreto) y marfil (texto). Los estados SOLIDO/ACEPTABLE/DEBIL
+  usan un juego semantico propio, deliberadamente distinto del
+  champan de marca, para que nunca se confundan "acento" con
+  "estado".
+
+  Diseño de un solo tema (oscuro, premium) por decision de marca --
+  no es un descuido: fondo y colores se declaran explicitos en :root
+  y se usan siempre via variables, nunca como literales sueltos.
+*/
+
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap");
+
+:root {
+  --onyx: #0b0b0d;
+  --carbon: #16151a;
+  --carbon-alto: #1f1e24;
+  --carbon-alto-2: #26242b;
+  --linea: #2c2a32;
+  --linea-suave: #221f26;
+
+  --marfil: #f4efe6;
+  --piedra: #a29da8;
+  --piedra-tenue: #716d78;
+
+  --champan: #c9a15e;
+  --champan-vivo: #e4c58a;
+  --champan-clara: #f0d9a8;
+  --champan-oscura: #8a6530;
+  --champan-tenue: rgba(201, 161, 94, 0.14);
+  --champan-borde: rgba(201, 161, 94, 0.35);
+
+  --solido: #6fae8b;
+  --solido-tenue: rgba(76, 133, 103, 0.16);
+  --solido-borde: rgba(111, 174, 139, 0.4);
+  --aceptable: #d69b57;
+  --aceptable-tenue: rgba(188, 122, 60, 0.16);
+  --aceptable-borde: rgba(214, 155, 87, 0.4);
+  --debil: #c07871;
+  --debil-tenue: rgba(166, 83, 74, 0.18);
+  --debil-borde: rgba(192, 120, 113, 0.4);
+  --info: #86a3bd;
+  --info-tenue: rgba(93, 122, 150, 0.16);
+  --info-borde: rgba(134, 163, 189, 0.35);
+
+  --radio-s: 8px;
+  --radio-m: 14px;
+  --radio-l: 22px;
+
+  --sombra-tarjeta: 0 14px 34px -20px rgba(0, 0, 0, 0.65);
+  --sombra-elevada: 0 22px 50px -18px rgba(0, 0, 0, 0.72);
+
+  --fuente-display: "Fraunces", Georgia, "Times New Roman", serif;
+  --fuente-cuerpo: "Manrope", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+  color-scheme: dark;
+  font-size: 16px;
+}
+
+* { box-sizing: border-box; }
+
+/* Cualquier elemento con [hidden] debe desaparecer SIEMPRE, incluso
+   si su propia clase declara "display" (ej. .aviso, .stepper,
+   .boton-secundario usan flex) -- sin esta regla, [hidden] y la
+   clase empatan en especificidad y gana quien aparece despues en
+   la hoja de estilos. */
+[hidden] { display: none !important; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+body {
+  margin: 0;
+  background: var(--onyx);
+  color: var(--marfil);
+  font-family: var(--fuente-cuerpo);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3 {
+  font-family: var(--fuente-display);
+  font-weight: 600;
+  margin: 0;
+  text-wrap: balance;
+  color: var(--marfil);
+}
+
+.envoltura {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 1.75rem 1.25rem 4rem;
+}
+
+/* ---------------------------------------------------------------- */
+/* Pantalla de bienvenida (hero)                                     */
+/* ---------------------------------------------------------------- */
+
+.pantalla-intro {
+  position: relative;
+  min-height: 82svh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2rem 1rem;
+  overflow: hidden;
+  animation: entrar-paso 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.intro-resplandor {
+  position: absolute;
+  inset: -12% -25% auto -25%;
+  height: 58%;
+  background: radial-gradient(ellipse at 38% 8%, rgba(201, 161, 94, 0.4), transparent 68%);
+  pointer-events: none;
+}
+
+.intro-retrato {
+  width: min(210px, 56vw);
+  aspect-ratio: 220 / 260;
+  margin: 0 0 -1.75rem;
+  -webkit-mask-image: linear-gradient(to bottom, #000 50%, transparent 90%);
+  mask-image: linear-gradient(to bottom, #000 50%, transparent 90%);
+}
+
+.intro-retrato svg { width: 100%; height: 100%; display: block; }
+
+.intro-logo-envoltura {
+  position: relative;
+  width: 72px;
+  height: 72px;
+  margin: 0 0 1rem;
+}
+
+.intro-logo-envoltura svg { width: 100%; height: 100%; }
+
+.marca-nombre--hero {
+  font-family: var(--fuente-display);
+  font-size: clamp(2.5rem, 12vw, 3.5rem);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  line-height: 1;
+  margin: 0 0 0.65rem;
+  background: linear-gradient(180deg, var(--champan-vivo) 10%, var(--champan) 55%, var(--champan-oscura) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.intro-eyebrow {
+  margin: 0 0 1.5rem;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--champan);
+}
+
+.intro-regla {
+  display: block;
+  width: 46px;
+  height: 2px;
+  margin: 0 0 1.5rem;
+  background: linear-gradient(90deg, transparent, var(--champan), transparent);
+}
+
+.intro-tagline {
+  margin: 0 0 2.5rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--piedra);
+  line-height: 1.9;
+}
+
+.boton-primario.boton-comenzar {
+  flex: none;
+  width: auto;
+  padding: 0 2.3rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+}
+
+.flecha-boton { display: inline-flex; transition: transform 0.2s ease; }
+.boton-comenzar:hover .flecha-boton { transform: translateX(3px); }
+
+.intro-nota {
+  margin-top: 2.25rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.02em;
+  color: var(--piedra-tenue);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+}
+
+.intro-nota svg { flex: none; width: 13px; height: 13px; }
+
+/* ---------------------------------------------------------------- */
+/* Encabezado / marca                                               */
+/* ---------------------------------------------------------------- */
+
+.marca {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0 0 1.75rem;
+}
+
+.marca-marca-svg {
+  flex: none;
+  width: 42px;
+  height: 42px;
+}
+
+.marca-texto { min-width: 0; }
+
+.marca-nombre {
+  font-family: var(--fuente-display);
+  font-size: 1.3rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--marfil);
+  line-height: 1.1;
+}
+
+.marca-linea {
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--champan);
+  margin: 0 0.05em;
+  transform: translateY(-2px);
+}
+
+.marca-tagline {
+  margin: 0.2rem 0 0;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--champan);
+  opacity: 0.85;
+}
+
+/* ---------------------------------------------------------------- */
+/* Stepper de progreso                                               */
+/* ---------------------------------------------------------------- */
+
+.stepper {
+  list-style: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 0 0 2rem;
+  padding: 0;
+  position: relative;
+}
+
+.stepper::before {
+  content: "";
+  position: absolute;
+  left: 6px;
+  right: 6px;
+  top: 6px;
+  height: 1px;
+  background: var(--linea);
+}
+
+.stepper::after {
+  content: "";
+  position: absolute;
+  left: 6px;
+  top: 6px;
+  height: 1px;
+  width: var(--avance, 0%);
+  background: var(--champan);
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.stepper .paso {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.stepper .nodo {
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: var(--carbon);
+  border: 1.5px solid var(--linea);
+  transition: all 0.3s ease;
+}
+
+.stepper .paso.completo .nodo {
+  background: var(--champan);
+  border-color: var(--champan);
+}
+
+.stepper .paso.activo .nodo {
+  border-color: var(--champan);
+  box-shadow: 0 0 0 5px var(--champan-tenue);
+  transform: scale(1.05);
+}
+
+.stepper .etiqueta-nodo {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--piedra-tenue);
+  white-space: nowrap;
+}
+
+.stepper .paso.activo .etiqueta-nodo,
+.stepper .paso.completo .etiqueta-nodo {
+  color: var(--champan);
+}
+
+/* ---------------------------------------------------------------- */
+/* Tarjeta base y paso activo                                        */
+/* ---------------------------------------------------------------- */
+
+.superficie {
+  background: linear-gradient(180deg, var(--carbon-alto) 0%, var(--carbon) 100%);
+  border: 1px solid var(--linea);
+  border-radius: var(--radio-l);
+  box-shadow: var(--sombra-tarjeta);
+}
+
+#asistente {
+  padding: 1.75rem 1.5rem 1.5rem;
+  animation: entrar-paso 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes entrar-paso {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.eyebrow {
+  display: block;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--champan);
+  margin: 0 0 0.5rem;
+}
+
+#titulo-paso {
+  font-size: 1.35rem;
+  margin: 0 0 1.35rem;
+}
+
+.opciones {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.65rem;
+}
+
+.opciones.opciones--compacta {
+  grid-template-columns: repeat(auto-fit, minmax(112px, 1fr));
+}
+
+@media (min-width: 480px) {
+  .opciones { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* Tarjeta de opcion generica (usada por rostro/textura/densidad/grosor) */
+
+.tarjeta-opcion {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  min-height: 96px;
+  padding: 1rem 0.6rem 0.8rem;
+  border-radius: var(--radio-m);
+  border: 1.5px solid var(--linea);
+  background: var(--carbon);
+  color: var(--marfil);
+  font-family: var(--fuente-cuerpo);
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: border-color 0.18s ease, background 0.18s ease, transform 0.12s ease, box-shadow 0.18s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.tarjeta-opcion:hover {
+  border-color: var(--champan-borde);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 22px -14px rgba(0, 0, 0, 0.6);
+}
+
+.tarjeta-opcion:active { transform: translateY(0) scale(0.97); }
+
+.tarjeta-opcion .glifo {
+  width: 34px;
+  height: 34px;
+  color: var(--piedra);
+  transition: color 0.18s ease;
+}
+
+.tarjeta-opcion.seleccionada {
+  border-color: var(--champan);
+  background: linear-gradient(180deg, rgba(201, 161, 94, 0.16), rgba(201, 161, 94, 0.05));
+  box-shadow: 0 0 0 1px var(--champan) inset, 0 10px 24px -16px rgba(201, 161, 94, 0.5);
+}
+
+.tarjeta-opcion.seleccionada .glifo { color: var(--champan-vivo); }
+
+.tarjeta-opcion .marca-check {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--champan);
+  color: var(--onyx);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transform: scale(0.6);
+  transition: all 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.tarjeta-opcion.seleccionada .marca-check {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.tarjeta-opcion .marca-check svg { width: 10px; height: 10px; }
+
+/* Variante sin glifo grafico (usada cuando el paso no requiere icono) */
+.tarjeta-opcion--simple {
+  min-height: 56px;
+  flex-direction: row;
+  padding: 0 0.9rem;
+}
+
+/* ---------------------------------------------------------------- */
+/* Navegacion                                                        */
+/* ---------------------------------------------------------------- */
+
+.navegacion {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1.6rem;
+}
+
+.boton {
+  min-height: 50px;
+  border: none;
+  border-radius: var(--radio-s);
+  font-family: var(--fuente-cuerpo);
+  font-size: 0.92rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  transition: transform 0.12s ease, background 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.boton:active { transform: scale(0.98); }
+
+.boton-primario {
+  flex: 1;
+  background: linear-gradient(180deg, var(--champan-vivo), var(--champan));
+  color: #1c1509;
+  box-shadow: 0 14px 28px -14px rgba(201, 161, 94, 0.55);
+}
+
+.boton-primario.procesando {
+  transform: scale(0.96);
+  opacity: 0.82;
+}
+
+.boton-primario:disabled {
+  background: var(--carbon-alto-2);
+  color: var(--piedra-tenue);
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+.boton-secundario {
+  flex: none;
+  background: transparent;
+  color: var(--piedra);
+  border: 1.5px solid var(--linea);
+  padding: 0 1.15rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.boton-secundario:hover { color: var(--marfil); border-color: var(--piedra-tenue); }
+
+.boton-fantasma {
+  width: 100%;
+  background: transparent;
+  color: var(--champan);
+  border: 1.5px solid var(--champan-borde);
+  padding: 0 1.15rem;
+}
+
+.boton-fantasma:hover { background: var(--champan-tenue); }
+
+/* ---------------------------------------------------------------- */
+/* Mensajes de estado                                                */
+/* ---------------------------------------------------------------- */
+
+.aviso {
+  display: flex;
+  gap: 0.7rem;
+  align-items: flex-start;
+  padding: 0.95rem 1.05rem;
+  border-radius: var(--radio-m);
+  font-size: 0.88rem;
+  line-height: 1.5;
+  border: 1px solid;
+  margin: 0 0 1.1rem;
+}
+
+.aviso svg { flex: none; width: 18px; height: 18px; margin-top: 0.1rem; }
+
+.aviso-error { background: var(--debil-tenue); border-color: var(--debil-borde); color: var(--marfil); }
+.aviso-error svg { color: var(--debil); }
+
+.aviso-vacio { background: var(--aceptable-tenue); border-color: var(--aceptable-borde); color: var(--marfil); }
+.aviso-vacio svg { color: var(--aceptable); }
+
+/* ---------------------------------------------------------------- */
+/* Informe de resultados                                             */
+/* ---------------------------------------------------------------- */
+
+#resultados { animation: entrar-paso 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+
+.informe-cabecera { margin: 0 0 1.25rem; }
+
+.informe-cabecera h2 { font-size: 1.5rem; }
+
+.resumen-diagnostico {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1px;
+  background: var(--linea);
+  border: 1px solid var(--linea);
+  border-radius: var(--radio-m);
+  overflow: hidden;
+  margin: 1rem 0 2rem;
+}
+
+@media (min-width: 480px) {
+  .resumen-diagnostico { grid-template-columns: repeat(4, 1fr); }
+}
+
+.resumen-item {
+  background: var(--carbon);
+  padding: 0.85rem 0.9rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.resumen-item .glifo {
+  width: 20px;
+  height: 20px;
+  color: var(--champan);
+}
+
+.resumen-item .resumen-etiqueta {
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--piedra-tenue);
+}
+
+.resumen-item .resumen-valor {
+  font-family: var(--fuente-display);
+  font-size: 1.02rem;
+  font-weight: 600;
+  color: var(--marfil);
+}
+
+.titulo-seccion {
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--piedra);
+  margin: 0 0 1rem;
+  padding-left: 0.1rem;
+}
+
+.lista-recomendaciones {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  margin: 0 0 1.75rem;
+}
+
+.tarjeta-recomendacion {
+  position: relative;
+  background: var(--carbon);
+  border: 1px solid var(--linea);
+  border-radius: var(--radio-l);
+  padding: 1.35rem 1.3rem 1.5rem;
+  box-shadow: var(--sombra-tarjeta);
+  opacity: 0;
+  transform: translateY(14px);
+  animation: entrar-tarjeta 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation-delay: var(--retraso, 0ms);
+}
+
+@keyframes entrar-tarjeta {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.tarjeta-recomendacion--top {
+  background: linear-gradient(165deg, var(--carbon-alto-2) 0%, var(--carbon) 65%);
+  border: 1.5px solid var(--champan-borde);
+  box-shadow: var(--sombra-elevada), 0 0 0 1px rgba(201, 161, 94, 0.12) inset;
+  padding: 1.6rem 1.45rem 1.7rem;
+}
+
+.tarjeta-recomendacion-cabecera {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.9rem;
+  margin-bottom: 0.65rem;
+}
+
+.numeral {
+  flex: none;
+  font-family: var(--fuente-display);
+  font-weight: 600;
+  font-size: 1.6rem;
+  color: var(--piedra-tenue);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.tarjeta-recomendacion--top .numeral {
+  font-size: 2.3rem;
+  color: var(--champan);
+}
+
+.tarjeta-recomendacion-titulos { flex: 1; min-width: 0; }
+
+.tarjeta-recomendacion-titulos h3 {
+  font-size: 1.08rem;
+  line-height: 1.3;
+  margin: 0 0 0.4rem;
+}
+
+.tarjeta-recomendacion--top .tarjeta-recomendacion-titulos h3 { font-size: 1.32rem; }
+
+.meta-tarjeta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  margin-top: 0.4rem;
+}
+
+.familia {
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--piedra-tenue);
+}
+
+.insignia {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.3rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  border: 1px solid;
+  white-space: nowrap;
+}
+
+.insignia::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.insignia-solido { background: var(--solido-tenue); border-color: var(--solido-borde); color: var(--solido); }
+.insignia-aceptable { background: var(--aceptable-tenue); border-color: var(--aceptable-borde); color: var(--aceptable); }
+.insignia-debil { background: var(--debil-tenue); border-color: var(--debil-borde); color: var(--debil); }
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0.9rem 0 1.05rem;
+}
+
+.chip {
+  background: var(--carbon-alto);
+  border: 1px solid var(--linea);
+  color: var(--piedra);
+  padding: 0.28rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.bloque-porque { margin: 0 0 0.95rem; }
+
+.bloque-porque .subtitulo-bloque {
+  display: block;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--piedra-tenue);
+  margin: 0 0 0.35rem;
+}
+
+.bloque-porque p {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.55;
+  color: var(--marfil);
+}
+
+.nota-tecnica {
+  display: flex;
+  gap: 0.6rem;
+  background: var(--info-tenue);
+  border: 1px solid var(--info-borde);
+  border-radius: var(--radio-s);
+  padding: 0.75rem 0.85rem;
+  margin: 0 0 0.95rem;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--marfil);
+}
+
+.nota-tecnica svg { flex: none; width: 16px; height: 16px; color: var(--info); margin-top: 0.15rem; }
+
+.advertencias { display: flex; flex-direction: column; gap: 0.5rem; margin: 0 0 1rem; }
+
+.advertencia {
+  display: flex;
+  gap: 0.6rem;
+  background: var(--aceptable-tenue);
+  border: 1px solid var(--aceptable-borde);
+  border-radius: var(--radio-s);
+  padding: 0.7rem 0.85rem;
+  font-size: 0.84rem;
+  line-height: 1.5;
+  color: var(--marfil);
+}
+
+.advertencia svg { flex: none; width: 15px; height: 15px; color: var(--aceptable); margin-top: 0.18rem; }
+
+.pie-tarjeta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding-top: 0.85rem;
+  margin-top: 0.2rem;
+  border-top: 1px solid var(--linea-suave);
+}
+
+.pie-tarjeta .glifo { width: 17px; height: 17px; color: var(--champan); }
+
+.pie-tarjeta span {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--piedra);
+  text-transform: capitalize;
+}
+
+.pie-tarjeta strong { color: var(--marfil); font-weight: 700; }
+
+.nota-pie {
+  text-align: center;
+  color: var(--piedra-tenue);
+  font-size: 0.76rem;
+  margin-top: 2.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+}
+
+.nota-pie svg { width: 13px; height: 13px; }
+
+/* ---------------------------------------------------------------- */
+/* Responsive fino                                                   */
+/* ---------------------------------------------------------------- */
+
+@media (max-width: 380px) {
+  .envoltura { padding: 1.4rem 1rem 3rem; }
+  .marca-nombre { font-size: 1.15rem; }
+  #titulo-paso { font-size: 1.18rem; }
+  .stepper .etiqueta-nodo { display: none; }
+  .tarjeta-recomendacion--top .numeral { font-size: 1.9rem; }
+}
+
+</style>
+</head>
+<body>
+  <main class="envoltura">
+    <section id="intro" class="pantalla-intro">
+      <div class="intro-resplandor" aria-hidden="true"></div>
+      <div class="intro-retrato" id="intro-retrato" aria-hidden="true"></div>
+      <span class="intro-logo-envoltura" id="intro-logo" aria-hidden="true"></span>
+      <h1 class="marca-nombre--hero">VISAGE</h1>
+      <p class="intro-eyebrow">Visagismo para barberos</p>
+      <span class="intro-regla" aria-hidden="true"></span>
+      <p class="intro-tagline">Ciencia del rostro<br>Arte del corte</p>
+      <button id="btn-comenzar" class="boton boton-primario boton-comenzar" type="button">
+        Comenzar <span class="flecha-boton" aria-hidden="true">→</span>
+      </button>
+      <p class="intro-nota" id="intro-nota"></p>
+    </section>
+
+    <header class="marca" id="marca-header">
+      <span class="marca-marca-svg" id="marca-logo" aria-hidden="true"></span>
+      <div class="marca-texto">
+        <p class="marca-nombre">VISAGE</p>
+        <p class="marca-tagline">Diagnóstico&nbsp;de&nbsp;visagismo</p>
+      </div>
+    </header>
+
+    <ol class="stepper" id="stepper">
+      <li class="paso" data-paso="0"><span class="nodo"></span><span class="etiqueta-nodo">Rostro</span></li>
+      <li class="paso" data-paso="1"><span class="nodo"></span><span class="etiqueta-nodo">Textura</span></li>
+      <li class="paso" data-paso="2"><span class="nodo"></span><span class="etiqueta-nodo">Densidad</span></li>
+      <li class="paso" data-paso="3"><span class="nodo"></span><span class="etiqueta-nodo">Grosor</span></li>
+    </ol>
+
+    <section id="asistente" class="superficie">
+      <span class="eyebrow" id="eyebrow-paso"></span>
+      <h2 id="titulo-paso"></h2>
+      <div class="opciones" id="opciones-paso"></div>
+      <div class="navegacion">
+        <button id="btn-atras" class="boton boton-secundario" type="button" hidden></button>
+        <button id="btn-siguiente" class="boton boton-primario" type="button" disabled>Siguiente</button>
+      </div>
+    </section>
+
+    <p id="error-global" class="aviso aviso-error" hidden></p>
+
+    <section id="resultados" hidden>
+      <div class="informe-cabecera">
+        <span class="eyebrow">Informe de visagismo</span>
+        <h2>Recomendaciones de corte</h2>
+      </div>
+
+      <div class="resumen-diagnostico" id="resumen-diagnostico"></div>
+
+      <p id="mensaje-vacio" class="aviso aviso-vacio" hidden></p>
+
+      <div id="bloque-recomendaciones">
+        <p class="titulo-seccion">Recomendaciones de corte</p>
+        <div id="lista-recomendaciones" class="lista-recomendaciones"></div>
+      </div>
+
+      <button id="btn-reiniciar" class="boton boton-fantasma" type="button">Nuevo diagnóstico</button>
+    </section>
+
+    <p class="nota-pie" id="nota-pie"></p>
+  </main>
+
+  <!-- Autocontenido: sin backend, sin fetch. Scripts como <script>
+       planos (no modulos) para funcionar tambien via file://. -->
+  <script>
+// Sistema de iconografia de VISAGE: logo de marca + glifos de
+// diagnostico, todos como SVG en linea (sin imagenes externas, sin
+// dependencias). Puramente presentacional -- no contiene ningun dato
+// ni regla del catalogo o del motor.
+(function (global, factory) {
+  if (typeof module !== "undefined" && module.exports) {
+    module.exports = factory();
+  } else {
+    global.ICONOS = factory();
+  }
+})(typeof window !== "undefined" ? window : globalThis, function () {
+  "use strict";
+
+  // Marca VISAGE: una "V" solida en degrade dorado (de Visage, y a
+  // la vez la forma de una mandibula/perfil en barberia) con un
+  // perfil facial minimalista trazado en el espacio negativo
+  // interior. A tamano grande se lee como rostro + V; a tamano de
+  // favicon el detalle del perfil se simplifica visualmente y queda
+  // una V limpia y solida -- nunca un icono roto o con huecos.
+  // Es una funcion (no un string fijo) porque el degradado necesita
+  // un id unico por cada instancia insertada en la pagina (aparece
+  // tanto en la pantalla de bienvenida como en el encabezado).
+  var _contadorLogo = 0;
+  function LOGO() {
+    _contadorLogo += 1;
+    var idGrad = "gradoVisage" + _contadorLogo;
+    return (
+      '<svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="VISAGE">' +
+      '<defs><linearGradient id="' + idGrad + '" x1="0%" y1="0%" x2="100%" y2="100%">' +
+      '<stop offset="0%" stop-color="#f0d9a8"/><stop offset="55%" stop-color="#c9a15e"/><stop offset="100%" stop-color="#8a6530"/>' +
+      "</linearGradient></defs>" +
+      '<path d="M16,8 L48,80 L80,8" stroke="url(#' + idGrad + ')" stroke-width="14" ' +
+      'stroke-linecap="round" stroke-linejoin="round"/>' +
+      '<path d="M38,18 C45,16 51,20 52,26 C53,31 51,35 53,39 C55,43 57,45 55,49 C53,53 48,55 43,54" ' +
+      'stroke="#f4efe6" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>' +
+      "</svg>"
+    );
+  }
+
+  // Glifos de forma de rostro: siluetas cerradas, mismo lenguaje de
+  // linea, proporciones distintas para que cada forma se reconozca
+  // sin necesidad de leer el nombre.
+  var ROSTRO = {
+    ovalado:
+      '<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">' +
+      '<path d="M32,6 C20,6 12,14 10,26 C8,36 11,46 18,52 C24,57 28,58 32,58 C36,58 40,57 46,52 C53,46 56,36 54,26 C52,14 44,6 32,6 Z" ' +
+      'stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>',
+    redondo:
+      '<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">' +
+      '<path d="M32,8 C18,8 9,17 8,30 C7,41 14,50 22,54 C26,56.5 29,57 32,57 C35,57 38,56.5 42,54 C50,50 57,41 56,30 C55,17 46,8 32,8 Z" ' +
+      'stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>',
+    cuadrado:
+      '<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">' +
+      '<path d="M32,8 C21,8 13,14 12,24 L12,38 C12,46 17,52 24,55 L40,55 C47,52 52,46 52,38 L52,24 C51,14 43,8 32,8 Z" ' +
+      'stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>',
+    alargado:
+      '<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">' +
+      '<path d="M32,4 C22,4 15,10 14,20 C13,30 14,40 16,48 C18,54 24,60 32,60 C40,60 46,54 48,48 C50,40 51,30 50,20 C49,10 42,4 32,4 Z" ' +
+      'stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>',
+    triangular:
+      '<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">' +
+      '<path d="M29,10 L35,10 C37,10 38.5,11.5 39,14 L47,42 C49.5,50 46,55 39,57 L25,57 C18,55 14.5,50 17,42 L25,14 C25.5,11.5 27,10 29,10 Z" ' +
+      'stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>',
+    corazon:
+      '<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">' +
+      '<path d="M32,8 C20,8 11,13 10,22 C9,29 13,35 18,40 L26,52 C28,56 30,58 32,58 C34,58 36,56 38,52 L46,40 C51,35 55,29 54,22 C53,13 44,8 32,8 Z" ' +
+      'stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>',
+  };
+
+  // Glifos de textura: cuatro mechones estilizados con distinto
+  // patron de linea (recta, ondulada, rizada, apretada).
+  function mechonesTextura(patron) {
+    var lineas = {
+      liso: [
+        "M14,10 C14,10 14,40 14,54",
+        "M26,10 C26,10 26,40 26,54",
+        "M38,10 C38,10 38,40 38,54",
+        "M50,10 C50,10 50,40 50,54",
+      ],
+      ondulado: [
+        "M14,8 C20,16 8,24 14,32 C20,40 8,48 14,54",
+        "M28,8 C34,16 22,24 28,32 C34,40 22,48 28,54",
+        "M42,8 C48,16 36,24 42,32 C48,40 36,48 42,54",
+      ],
+      rizado: [
+        "M16,8 C28,10 28,20 16,22 C4,24 4,34 16,36 C28,38 28,48 16,50",
+        "M38,8 C50,10 50,20 38,22 C26,24 26,34 38,36 C50,38 50,48 38,50",
+      ],
+      afro: [
+        "M10,14 Q14,8 18,14 Q22,20 18,26 Q14,32 18,38 Q22,44 18,50",
+        "M25,12 Q29,6 33,12 Q37,18 33,24 Q29,30 33,36 Q37,42 33,48 Q29,54 33,58",
+        "M42,14 Q46,8 50,14 Q54,20 50,26 Q46,32 50,38 Q54,44 50,50",
+      ],
+    };
+    var trazos = lineas[patron] || lineas.liso;
+    var contenido = trazos
+      .map(function (d) {
+        return '<path d="' + d + '" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/>';
+      })
+      .join("");
+    return '<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">' + contenido + "</svg>";
+  }
+
+  var TEXTURA = {
+    liso: mechonesTextura("liso"),
+    ondulado: mechonesTextura("ondulado"),
+    rizado: mechonesTextura("rizado"),
+    afro: mechonesTextura("afro"),
+  };
+
+  // Medidor de nivel (1 a 3 barras) para densidad y grosor.
+  function medidorNivel(nivel) {
+    var alturas = [22, 34, 46];
+    var y0 = [36, 24, 12];
+    var barras = [0, 1, 2]
+      .map(function (i) {
+        var activa = i < nivel;
+        var color = activa ? "currentColor" : "currentColor";
+        var opacidad = activa ? "1" : "0.25";
+        var x = 14 + i * 16;
+        return (
+          '<rect x="' + x + '" y="' + y0[i] + '" width="10" height="' + alturas[i] +
+          '" rx="2.5" fill="' + color + '" fill-opacity="' + opacidad + '"/>'
+        );
+      })
+      .join("");
+    return '<svg viewBox="0 0 64 58" fill="none" xmlns="http://www.w3.org/2000/svg">' + barras + "</svg>";
+  }
+
+  var DENSIDAD = { baja: medidorNivel(1), media: medidorNivel(2), alta: medidorNivel(3) };
+  var GROSOR = { fino: medidorNivel(1), medio: medidorNivel(2), grueso: medidorNivel(3) };
+
+  // Utilitarios de interfaz.
+  var UTIL = {
+    check:
+      '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">' +
+      '<path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    flecha:
+      '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">' +
+      '<path d="M15 6l-6 6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    info:
+      '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">' +
+      '<circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/>' +
+      '<path d="M12 11v5.5M12 8v.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
+    advertencia:
+      '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">' +
+      '<path d="M12 3.5 22 20.5H2Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>' +
+      '<path d="M12 10v4.5M12 17.2v.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
+    error:
+      '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">' +
+      '<circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/>' +
+      '<path d="M9 9l6 6M15 9l-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
+    mantenimiento:
+      '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">' +
+      '<circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.6"/>' +
+      '<path d="M12 3v2.2M12 18.8V21M21 12h-2.2M5.2 12H3M18.4 5.6l-1.55 1.55M7.15 16.85l-1.55 1.55M18.4 18.4l-1.55-1.55M7.15 7.15 5.6 5.6" ' +
+      'stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>',
+    candado:
+      '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">' +
+      '<rect x="5" y="10.5" width="14" height="9.5" rx="2" stroke="currentColor" stroke-width="1.6"/>' +
+      '<path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" stroke="currentColor" stroke-width="1.6"/></svg>',
+  };
+
+  // Retrato editorial de la pantalla de bienvenida: silueta de un
+  // busto de perfil con cabello con volumen, trazo de borde en
+  // degradado dorado (efecto de luz de contorno/rim light) sobre el
+  // fondo oscuro. Es una ilustracion vectorial deliberadamente
+  // abstracta -- no una fotografia (no tenemos forma de generar ni
+  // de licenciar una foto real) -- pensada para transmitir el mismo
+  // estado de animo cinematografico de barberia premium.
+  var _contadorRetrato = 0;
+  function RETRATO() {
+    _contadorRetrato += 1;
+    var idGrad = "gradoRetrato" + _contadorRetrato;
+    return (
+      '<svg viewBox="0 0 220 260" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true">' +
+      '<defs>' +
+      '<linearGradient id="' + idGrad + '-oro" x1="0%" y1="0%" x2="60%" y2="100%">' +
+      '<stop offset="0%" stop-color="#f0d9a8"/><stop offset="100%" stop-color="#8a6530"/>' +
+      "</linearGradient>" +
+      '<linearGradient id="' + idGrad + '-piel" x1="20%" y1="0%" x2="100%" y2="100%">' +
+      '<stop offset="0%" stop-color="#2a2830"/><stop offset="100%" stop-color="#0b0b0d"/>' +
+      "</linearGradient>" +
+      "</defs>" +
+      '<path d="M70,255 C68,210 72,180 92,162 C82,152 76,138 78,124 C72,116 70,104 76,92 ' +
+      "C74,78 82,64 98,55 C108,49 120,47 130,50 C142,44 155,48 160,58 C168,60 172,68 168,76 " +
+      "C174,84 172,94 164,98 C166,108 160,118 150,120 C152,134 146,148 134,156 " +
+      'C150,176 156,206 156,255 Z" ' +
+      'fill="url(#' + idGrad + '-piel)" stroke="url(#' + idGrad + '-oro)" stroke-width="1.6" stroke-linejoin="round"/>' +
+      '<path d="M98,55 C90,64 84,74 84,86 C84,96 88,104 94,110 C90,118 90,126 96,132 C100,140 108,146 118,148" ' +
+      'fill="none" stroke="url(#' + idGrad + '-oro)" stroke-width="1.2" stroke-linecap="round" opacity="0.9"/>' +
+      "</svg>"
+    );
+  }
+
+  return { LOGO: LOGO, RETRATO: RETRATO, ROSTRO: ROSTRO, TEXTURA: TEXTURA, DENSIDAD: DENSIDAD, GROSOR: GROSOR, UTIL: UTIL };
+});
+
+</script>
+  <script>
+// GENERADO AUTOMATICAMENTE desde src/catalogo por scripts/generar_catalogo_js.py
+// No editar a mano. Cualquier cambio de catalogo se hace en Python y se regenera este archivo.
+(function (global) {
+  "use strict";
+  var CATALOGO_DATOS = {
+  "cortes": [
+    {
+      "id": 1,
+      "nombre": "Degradado alto con volumen superior por contraste",
+      "familia": "Degradados",
+      "descripcion": "Fade marcado que crea contraste entre los lados rapados y un volumen concentrado arriba, texturizado.",
+      "volumenArriba": 3,
+      "volumenLateral": 1,
+      "volumenPosterior": 1,
+      "efectoLargo": "alarga",
+      "eje": 2,
+      "densidadReferencia": 2,
+      "grosorReferencia": 2,
+      "mantenimiento": 2,
+      "mecanismoId": 1
+    },
+    {
+      "id": 2,
+      "nombre": "Undercut con desconexion marcada",
+      "familia": "Undercuts",
+      "descripcion": "Corte muy corto en los lados con un cambio abrupto hacia un volumen libre y largo arriba.",
+      "volumenArriba": 3,
+      "volumenLateral": 0,
+      "volumenPosterior": 1,
+      "efectoLargo": "alarga",
+      "eje": 1,
+      "densidadReferencia": 3,
+      "grosorReferencia": 2,
+      "mantenimiento": 3,
+      "mecanismoId": 2
+    },
+    {
+      "id": 3,
+      "nombre": "Corte texturizado en capas medias con movimiento lateral",
+      "familia": "Capas con movimiento",
+      "descripcion": "Largo medio con capas internas que generan movimiento y anchura suave a los lados.",
+      "volumenArriba": 2,
+      "volumenLateral": 2,
+      "volumenPosterior": 1,
+      "efectoLargo": "acorta",
+      "eje": 4,
+      "densidadReferencia": 2,
+      "grosorReferencia": 2,
+      "mantenimiento": 1,
+      "mecanismoId": 3
+    },
+    {
+      "id": 4,
+      "nombre": "Crop frances con flequillo texturizado",
+      "familia": "Crops",
+      "descripcion": "Corte corto con flequillo texturizado corto que cae sobre la frente.",
+      "volumenArriba": 2,
+      "volumenLateral": 1,
+      "volumenPosterior": 1,
+      "efectoLargo": "acorta",
+      "eje": 4,
+      "densidadReferencia": 3,
+      "grosorReferencia": 2,
+      "mantenimiento": 2,
+      "mecanismoId": 4
+    },
+    {
+      "id": 5,
+      "nombre": "Corte corto uniforme (buzz/crew)",
+      "familia": "Uniformes",
+      "descripcion": "Longitud pareja y corta en toda la cabeza, sin puntos de volumen dirigido.",
+      "volumenArriba": 0,
+      "volumenLateral": 0,
+      "volumenPosterior": 0,
+      "efectoLargo": "neutro",
+      "eje": 3,
+      "densidadReferencia": 1,
+      "grosorReferencia": 1,
+      "mantenimiento": 1,
+      "mecanismoId": 5
+    },
+    {
+      "id": 6,
+      "nombre": "Corte largo con capas y volumen hacia atras/lados bajos",
+      "familia": "Capas largas con peso posterior",
+      "descripcion": "Largo medio-alto con capas que concentran cuerpo en nuca y a la altura de la mandibula.",
+      "volumenArriba": 1,
+      "volumenLateral": 2,
+      "volumenPosterior": 3,
+      "efectoLargo": "acorta",
+      "eje": 4,
+      "densidadReferencia": 3,
+      "grosorReferencia": 3,
+      "mantenimiento": 2,
+      "mecanismoId": 6
+    },
+    {
+      "id": 7,
+      "nombre": "Corte corto con raya lateral definida",
+      "familia": "Uniformes/clasicos",
+      "descripcion": "Corte corto peinado con raya recta y marcada, sin volumen anadido.",
+      "volumenArriba": 1,
+      "volumenLateral": 0,
+      "volumenPosterior": 0,
+      "efectoLargo": "neutro",
+      "eje": 3,
+      "densidadReferencia": 2,
+      "grosorReferencia": 2,
+      "mantenimiento": 2,
+      "mecanismoId": 7
+    },
+    {
+      "id": 8,
+      "nombre": "Afro moldeado con contorno definido y largo controlado (bajo)",
+      "familia": "Afro moldeado",
+      "descripcion": "Afro corto, uniforme, con contorno preciso; el volumen arriba se mantiene bajo por diseno.",
+      "volumenArriba": 1,
+      "volumenLateral": 1,
+      "volumenPosterior": 1,
+      "efectoLargo": "neutro",
+      "eje": 4,
+      "densidadReferencia": 1,
+      "grosorReferencia": 1,
+      "mantenimiento": 2,
+      "mecanismoId": 8
+    },
+    {
+      "id": 9,
+      "nombre": "Afro moldeado con mayor largo superior (high top)",
+      "familia": "Afro moldeado",
+      "descripcion": "Variante del corte 8 dejando bastante mas largo arriba, con contorno recto y marcado en los lados.",
+      "volumenArriba": 3,
+      "volumenLateral": 1,
+      "volumenPosterior": 1,
+      "efectoLargo": "alarga",
+      "eje": 2,
+      "densidadReferencia": 3,
+      "grosorReferencia": 2,
+      "mantenimiento": 3,
+      "mecanismoId": 9
+    },
+    {
+      "id": 10,
+      "nombre": "Corte corto de rizos definidos con contorno (curly shape-up)",
+      "familia": "Rizos definidos",
+      "descripcion": "Equivalente del corte 8 para rizo suelto: rizos cortos definidos con contorno preciso.",
+      "volumenArriba": 2,
+      "volumenLateral": 1,
+      "volumenPosterior": 1,
+      "efectoLargo": "neutro",
+      "eje": 4,
+      "densidadReferencia": 1,
+      "grosorReferencia": 1,
+      "mantenimiento": 2,
+      "mecanismoId": 10
+    },
+    {
+      "id": 11,
+      "nombre": "Corte con flequillo largo tipo cortina",
+      "familia": "Flequillos",
+      "descripcion": "Flequillo largo dividido al centro, con caida lateral hacia ambos lados.",
+      "volumenArriba": 2,
+      "volumenLateral": 1,
+      "volumenPosterior": 1,
+      "efectoLargo": "acorta",
+      "eje": 4,
+      "densidadReferencia": 2,
+      "grosorReferencia": 2,
+      "mantenimiento": 2,
+      "mecanismoId": 11
+    },
+    {
+      "id": 12,
+      "nombre": "Corte texturizado corto con volumen concentrado en coronilla",
+      "familia": "Degradados",
+      "descripcion": "Similar al corte 1 en efecto, sin degradado marcado: el volumen arriba nace del peso natural.",
+      "volumenArriba": 3,
+      "volumenLateral": 1,
+      "volumenPosterior": 1,
+      "efectoLargo": "alarga",
+      "eje": 2,
+      "densidadReferencia": 3,
+      "grosorReferencia": 2,
+      "mantenimiento": 2,
+      "mecanismoId": 12
+    },
+    {
+      "id": 13,
+      "nombre": "Corte largo con corte recto (blunt) y peso concentrado en las puntas",
+      "familia": "Capas largas con peso posterior",
+      "descripcion": "Largo medio-alto cortado recto (sin capas), concentrando el peso visual en las puntas.",
+      "volumenArriba": 1,
+      "volumenLateral": 2,
+      "volumenPosterior": 3,
+      "efectoLargo": "acorta",
+      "eje": 4,
+      "densidadReferencia": 3,
+      "grosorReferencia": 2,
+      "mantenimiento": 1,
+      "mecanismoId": 13
+    },
+    {
+      "id": 14,
+      "nombre": "Afro/rizado con mayor largo en nuca y patillas (peso bajo)",
+      "familia": "Afro con silueta ampliada",
+      "descripcion": "Variante de afro/rizo cerrado que deja mas largo en nuca y patillas, con la coronilla corta.",
+      "volumenArriba": 1,
+      "volumenLateral": 2,
+      "volumenPosterior": 3,
+      "efectoLargo": "acorta",
+      "eje": 4,
+      "densidadReferencia": 1,
+      "grosorReferencia": 1,
+      "mantenimiento": 2,
+      "mecanismoId": 14
+    },
+    {
+      "id": 15,
+      "nombre": "Afro con silueta ensanchada en los lados y corona controlada",
+      "familia": "Afro con silueta ampliada",
+      "descripcion": "Anchura deliberada a la altura de patillas/mandibula, coronilla corta y controlada.",
+      "volumenArriba": 1,
+      "volumenLateral": 3,
+      "volumenPosterior": 2,
+      "efectoLargo": "acorta",
+      "eje": 4,
+      "densidadReferencia": 1,
+      "grosorReferencia": 1,
+      "mantenimiento": 2,
+      "mecanismoId": 15
+    }
+  ],
+  "compatibilidades": [
+    {
+      "corteId": 1,
+      "textura": "liso",
+      "valor": 2,
+      "justificacion": "El contraste de degradado funciona igual de bien sin ayuda de la textura."
+    },
+    {
+      "corteId": 1,
+      "textura": "ondulado",
+      "valor": 2,
+      "justificacion": "La ondulacion refuerza el volumen arriba sin esfuerzo adicional."
+    },
+    {
+      "corteId": 1,
+      "textura": "rizado",
+      "valor": 1,
+      "justificacion": "El volumen arriba ya lo aporta la textura natural; el degradado acompana, no es el mecanismo decisivo."
+    },
+    {
+      "corteId": 1,
+      "textura": "afro",
+      "valor": 1,
+      "justificacion": "Mismo principio que en rizado: el degradado deja de ser el factor decisivo."
+    },
+    {
+      "corteId": 2,
+      "textura": "liso",
+      "valor": 2,
+      "justificacion": "El contraste por desconexion es su mecanismo nativo en cabello sin movimiento propio."
+    },
+    {
+      "corteId": 2,
+      "textura": "ondulado",
+      "valor": 2,
+      "justificacion": "La ondulacion sostiene bien el volumen libre sin perder la linea de desconexion."
+    },
+    {
+      "corteId": 2,
+      "textura": "rizado",
+      "valor": 1,
+      "justificacion": "El rizo suaviza la desconexion, pero el principio de contraste sigue funcionando."
+    },
+    {
+      "corteId": 2,
+      "textura": "afro",
+      "valor": 1,
+      "justificacion": "Se reinterpreta como 'high top' con contorno recto en vez de linea de desconexion clasica."
+    },
+    {
+      "corteId": 3,
+      "textura": "liso",
+      "valor": 1,
+      "justificacion": "Sin movimiento propio, necesita producto para sostener el efecto de las capas."
+    },
+    {
+      "corteId": 3,
+      "textura": "ondulado",
+      "valor": 2,
+      "justificacion": "Es el mecanismo ideal para esta textura: aprovecha el movimiento natural."
+    },
+    {
+      "corteId": 3,
+      "textura": "rizado",
+      "valor": 2,
+      "justificacion": "El rizo natural refuerza el movimiento lateral que buscan las capas."
+    },
+    {
+      "corteId": 3,
+      "textura": "afro",
+      "valor": 0,
+      "justificacion": "Las capas internas no son ejecutables sin alterar la textura afro."
+    },
+    {
+      "corteId": 4,
+      "textura": "liso",
+      "valor": 2,
+      "justificacion": "El flequillo cae con el cuerpo esperado sin ayuda de la textura."
+    },
+    {
+      "corteId": 4,
+      "textura": "ondulado",
+      "valor": 2,
+      "justificacion": "La ondulacion no interfiere con la caida del flequillo."
+    },
+    {
+      "corteId": 4,
+      "textura": "rizado",
+      "valor": 1,
+      "justificacion": "El flequillo cambia su caida natural; requiere ajuste de definicion."
+    },
+    {
+      "corteId": 4,
+      "textura": "afro",
+      "valor": 0,
+      "justificacion": "El mecanismo de caida sobre la frente no aplica sin alisar."
+    },
+    {
+      "corteId": 5,
+      "textura": "liso",
+      "valor": 2,
+      "justificacion": "Ausencia de direccion: funciona igual en cualquier textura."
+    },
+    {
+      "corteId": 5,
+      "textura": "ondulado",
+      "valor": 2,
+      "justificacion": "Ausencia de direccion: funciona igual en cualquier textura."
+    },
+    {
+      "corteId": 5,
+      "textura": "rizado",
+      "valor": 2,
+      "justificacion": "Ausencia de direccion: funciona igual en cualquier textura."
+    },
+    {
+      "corteId": 5,
+      "textura": "afro",
+      "valor": 2,
+      "justificacion": "Ausencia de direccion: funciona igual en cualquier textura."
+    },
+    {
+      "corteId": 6,
+      "textura": "liso",
+      "valor": 1,
+      "justificacion": "Sin movimiento propio, necesita producto para no verse plano."
+    },
+    {
+      "corteId": 6,
+      "textura": "ondulado",
+      "valor": 2,
+      "justificacion": "Es el mecanismo ideal: el movimiento natural sostiene el peso posterior."
+    },
+    {
+      "corteId": 6,
+      "textura": "rizado",
+      "valor": 2,
+      "justificacion": "El rizo aporta cuerpo adicional al peso posterior buscado."
+    },
+    {
+      "corteId": 6,
+      "textura": "afro",
+      "valor": 0,
+      "justificacion": "Las capas con movimiento no son ejecutables sin alterar la textura afro."
+    },
+    {
+      "corteId": 7,
+      "textura": "liso",
+      "valor": 2,
+      "justificacion": "La raya perfectamente plana es su mecanismo nativo en liso."
+    },
+    {
+      "corteId": 7,
+      "textura": "ondulado",
+      "valor": 1,
+      "justificacion": "Requiere fijador para mantener la linea plana."
+    },
+    {
+      "corteId": 7,
+      "textura": "rizado",
+      "valor": 0,
+      "justificacion": "La raya perfectamente plana no es ejecutable sin alisar."
+    },
+    {
+      "corteId": 7,
+      "textura": "afro",
+      "valor": 0,
+      "justificacion": "La raya perfectamente plana no es ejecutable sin alisar."
+    },
+    {
+      "corteId": 8,
+      "textura": "liso",
+      "valor": 0,
+      "justificacion": "El mecanismo de largo+contorno no aplica a liso, que no proyecta volumen propio en ese formato."
+    },
+    {
+      "corteId": 8,
+      "textura": "ondulado",
+      "valor": 0,
+      "justificacion": "El mecanismo de largo+contorno no aplica a ondulado de la misma forma que a rizo cerrado o afro."
+    },
+    {
+      "corteId": 8,
+      "textura": "rizado",
+      "valor": 1,
+      "justificacion": "Aplica parcialmente en rizo muy cerrado (3c/4a)."
+    },
+    {
+      "corteId": 8,
+      "textura": "afro",
+      "valor": 2,
+      "justificacion": "Es el mecanismo nativo de la textura afro."
+    },
+    {
+      "corteId": 9,
+      "textura": "liso",
+      "valor": 0,
+      "justificacion": "El mismo motivo que el corte 8: el mecanismo es nativo de afro/rizo cerrado."
+    },
+    {
+      "corteId": 9,
+      "textura": "ondulado",
+      "valor": 0,
+      "justificacion": "El mismo motivo que el corte 8."
+    },
+    {
+      "corteId": 9,
+      "textura": "rizado",
+      "valor": 1,
+      "justificacion": "Aplica parcialmente en rizo muy cerrado."
+    },
+    {
+      "corteId": 9,
+      "textura": "afro",
+      "valor": 2,
+      "justificacion": "Es el mecanismo nativo de la textura afro."
+    },
+    {
+      "corteId": 10,
+      "textura": "liso",
+      "valor": 0,
+      "justificacion": "La definicion de rizo no tiene equivalente en cabello liso."
+    },
+    {
+      "corteId": 10,
+      "textura": "ondulado",
+      "valor": 1,
+      "justificacion": "Aplica con ajuste: la ondulacion no define tan marcadamente como el rizo."
+    },
+    {
+      "corteId": 10,
+      "textura": "rizado",
+      "valor": 2,
+      "justificacion": "Es el mecanismo nativo de esta textura."
+    },
+    {
+      "corteId": 10,
+      "textura": "afro",
+      "valor": 1,
+      "justificacion": "Aplica parcialmente: el rizo cerrado del afro admite el mismo principio con ajuste."
+    },
+    {
+      "corteId": 11,
+      "textura": "liso",
+      "valor": 2,
+      "justificacion": "La caida lateral tipo cortina es su mecanismo nativo en liso."
+    },
+    {
+      "corteId": 11,
+      "textura": "ondulado",
+      "valor": 2,
+      "justificacion": "La ondulacion no interfiere con la caida lateral."
+    },
+    {
+      "corteId": 11,
+      "textura": "rizado",
+      "valor": 1,
+      "justificacion": "La caida natural cambia, requiere mas control."
+    },
+    {
+      "corteId": 11,
+      "textura": "afro",
+      "valor": 0,
+      "justificacion": "El mecanismo de caida lateral dirigida no aplica sin alisar."
+    },
+    {
+      "corteId": 12,
+      "textura": "liso",
+      "valor": 2,
+      "justificacion": "El peso natural concentrado funciona igual de bien sin ayuda de la textura."
+    },
+    {
+      "corteId": 12,
+      "textura": "ondulado",
+      "valor": 2,
+      "justificacion": "La ondulacion refuerza el peso natural concentrado arriba."
+    },
+    {
+      "corteId": 12,
+      "textura": "rizado",
+      "valor": 2,
+      "justificacion": "El rizo aporta el cuerpo necesario sin depender de degradado marcado."
+    },
+    {
+      "corteId": 12,
+      "textura": "afro",
+      "valor": 1,
+      "justificacion": "El afro aporta cuerpo, pero el mecanismo de 'peso concentrado sin degradado' no es su forma nativa."
+    },
+    {
+      "corteId": 13,
+      "textura": "liso",
+      "valor": 2,
+      "justificacion": "El corte recto (blunt) es su mecanismo nativo en cabello sin rizo."
+    },
+    {
+      "corteId": 13,
+      "textura": "ondulado",
+      "valor": 2,
+      "justificacion": "La ondulacion no interfiere con la geometria del corte recto."
+    },
+    {
+      "corteId": 13,
+      "textura": "rizado",
+      "valor": 1,
+      "justificacion": "El rizo dificulta mantener la linea recta perfecta, pero el peso concentrado sigue logrando el efecto."
+    },
+    {
+      "corteId": 13,
+      "textura": "afro",
+      "valor": 0,
+      "justificacion": "El corte recto sin capas no es ejecutable sin alterar la textura afro."
+    },
+    {
+      "corteId": 14,
+      "textura": "liso",
+      "valor": 0,
+      "justificacion": "El control por largo diferenciado por zona no tiene equivalente en liso."
+    },
+    {
+      "corteId": 14,
+      "textura": "ondulado",
+      "valor": 0,
+      "justificacion": "El control por largo diferenciado por zona no tiene equivalente en ondulado."
+    },
+    {
+      "corteId": 14,
+      "textura": "rizado",
+      "valor": 2,
+      "justificacion": "Es un mecanismo nativo de esta textura."
+    },
+    {
+      "corteId": 14,
+      "textura": "afro",
+      "valor": 2,
+      "justificacion": "Es el mecanismo nativo de esta textura."
+    },
+    {
+      "corteId": 15,
+      "textura": "liso",
+      "valor": 0,
+      "justificacion": "El control por forma/silueta no tiene equivalente en liso."
+    },
+    {
+      "corteId": 15,
+      "textura": "ondulado",
+      "valor": 0,
+      "justificacion": "El control por forma/silueta no tiene equivalente en ondulado."
+    },
+    {
+      "corteId": 15,
+      "textura": "rizado",
+      "valor": 1,
+      "justificacion": "Aplica parcialmente en rizo con buen volumen natural."
+    },
+    {
+      "corteId": 15,
+      "textura": "afro",
+      "valor": 2,
+      "justificacion": "Es el mecanismo nativo de esta textura."
+    }
+  ],
+  "mecanismos": [
+    {
+      "id": 1,
+      "nombre": "Contraste de alturas (degradado)",
+      "principioTecnico": "Degradado a piel + volumen arriba: el efecto nace del contraste, no de la cantidad de cabello.",
+      "efectos": [
+        "sumar_arriba"
+      ],
+      "zonas": [
+        "arriba"
+      ]
+    },
+    {
+      "id": 2,
+      "nombre": "Contraste extremo por desconexion",
+      "principioTecnico": "Cambio abrupto de longitud (desconexion) entre lados y volumen libre arriba.",
+      "efectos": [
+        "sumar_arriba",
+        "angulosidad"
+      ],
+      "zonas": [
+        "arriba"
+      ]
+    },
+    {
+      "id": 3,
+      "nombre": "Capas internas con movimiento",
+      "principioTecnico": "Capas que rompen lineas rectas y aportan cuerpo lateral.",
+      "efectos": [
+        "suavidad",
+        "sumar_lateral"
+      ],
+      "zonas": [
+        "lateral"
+      ]
+    },
+    {
+      "id": 4,
+      "nombre": "Desvio de atencion frontal",
+      "principioTecnico": "Volumen frontal definido (flequillo corto) que desvia la atencion de la mandibula.",
+      "efectos": [
+        "suavidad"
+      ],
+      "zonas": [
+        "arriba"
+      ]
+    },
+    {
+      "id": 5,
+      "nombre": "Ausencia deliberada de direccion",
+      "principioTecnico": "Longitud pareja sin ningun punto de volumen dirigido.",
+      "efectos": [
+        "equilibrio"
+      ],
+      "zonas": []
+    },
+    {
+      "id": 6,
+      "nombre": "Capas con movimiento natural, peso posterior",
+      "principioTecnico": "Capas que concentran cuerpo en nuca y mandibula mediante movimiento de textura.",
+      "efectos": [
+        "sumar_posterior",
+        "sumar_lateral"
+      ],
+      "zonas": [
+        "posterior",
+        "lateral"
+      ]
+    },
+    {
+      "id": 7,
+      "nombre": "Linea recta impuesta (raya)",
+      "principioTecnico": "Raya marcada que exige que el cabello caiga plano.",
+      "efectos": [
+        "reducir_lateral",
+        "reducir_arriba"
+      ],
+      "zonas": [
+        "lateral",
+        "arriba"
+      ]
+    },
+    {
+      "id": 8,
+      "nombre": "Control por largo + contorno (bajo)",
+      "principioTecnico": "Afro corto y uniforme con contorno preciso; el volumen arriba se mantiene bajo por diseno.",
+      "efectos": [
+        "reducir_arriba",
+        "suavidad"
+      ],
+      "zonas": [
+        "arriba"
+      ]
+    },
+    {
+      "id": 9,
+      "nombre": "Control por largo + contorno (alto)",
+      "principioTecnico": "Mismo principio que el mecanismo 8, invertido: mas largo arriba con contorno recto.",
+      "efectos": [
+        "sumar_arriba"
+      ],
+      "zonas": [
+        "arriba"
+      ]
+    },
+    {
+      "id": 10,
+      "nombre": "Definicion de rizo + contorno",
+      "principioTecnico": "Equivalente al control por largo+contorno del afro, para rizo suelto.",
+      "efectos": [
+        "suavidad"
+      ],
+      "zonas": [
+        "arriba"
+      ]
+    },
+    {
+      "id": 11,
+      "nombre": "Caida lateral dirigida del flequillo",
+      "principioTecnico": "Flequillo largo dividido al centro con barrido hacia ambos lados.",
+      "efectos": [
+        "suavidad",
+        "sumar_lateral"
+      ],
+      "zonas": [
+        "lateral"
+      ]
+    },
+    {
+      "id": 12,
+      "nombre": "Peso natural concentrado (sin degradado marcado)",
+      "principioTecnico": "Volumen arriba logrado por cuerpo natural, sin depender de una linea de contraste.",
+      "efectos": [
+        "sumar_arriba"
+      ],
+      "zonas": [
+        "arriba"
+      ]
+    },
+    {
+      "id": 13,
+      "nombre": "Corte recto sin capas (blunt)",
+      "principioTecnico": "Concentra peso visual por geometria de corte, no por movimiento de textura.",
+      "efectos": [
+        "sumar_posterior",
+        "sumar_lateral"
+      ],
+      "zonas": [
+        "posterior",
+        "lateral"
+      ]
+    },
+    {
+      "id": 14,
+      "nombre": "Largo diferenciado por zona",
+      "principioTecnico": "Corto arriba, deliberadamente mas largo en nuca y patillas.",
+      "efectos": [
+        "reducir_arriba",
+        "sumar_lateral",
+        "sumar_posterior"
+      ],
+      "zonas": [
+        "arriba",
+        "lateral",
+        "posterior"
+      ]
+    },
+    {
+      "id": 15,
+      "nombre": "Control por forma/silueta ensanchada",
+      "principioTecnico": "Ensancha mediante el corte de una longitud pareja y corta, no mediante largo suelto.",
+      "efectos": [
+        "sumar_lateral",
+        "reducir_arriba"
+      ],
+      "zonas": [
+        "lateral",
+        "arriba"
+      ]
+    }
+  ],
+  "excepciones": [
+    {
+      "corteId": 1,
+      "textura": "rizado",
+      "texto": "El volumen arriba ya lo aporta la textura natural; el degradado acompana, no es el mecanismo decisivo."
+    },
+    {
+      "corteId": 1,
+      "textura": "afro",
+      "texto": "Mismo principio que en rizado."
+    },
+    {
+      "corteId": 2,
+      "textura": "afro",
+      "texto": "La desconexion clasica se reinterpreta como 'high top' con contorno recto."
+    },
+    {
+      "corteId": 3,
+      "textura": "liso",
+      "texto": "Necesita producto para sostener el movimiento que la textura no aporta sola."
+    },
+    {
+      "corteId": 4,
+      "textura": "rizado",
+      "texto": "El flequillo cambia su caida natural, requiere ajuste de definicion."
+    },
+    {
+      "corteId": 6,
+      "textura": "liso",
+      "texto": "Necesita producto para no verse plano."
+    },
+    {
+      "corteId": 8,
+      "textura": "rizado",
+      "texto": "Aplica parcialmente en rizo muy cerrado (3c/4a)."
+    },
+    {
+      "corteId": 11,
+      "textura": "rizado",
+      "texto": "La caida natural cambia, requiere mas control."
+    }
+  ],
+  "rostros": {
+    "ovalado": {
+      "modo": "por_equilibrio"
+    },
+    "redondo": {
+      "modo": "por_zona",
+      "objetivosZona": {
+        "arriba": "sumar",
+        "lateral": "reducir",
+        "posterior": "sin_objetivo"
+      }
+    },
+    "cuadrado": {
+      "modo": "por_eje",
+      "objetivoEjeMinimo": 4
+    },
+    "alargado": {
+      "modo": "por_zona",
+      "objetivosZona": {
+        "arriba": "reducir",
+        "lateral": "sumar",
+        "posterior": "sin_objetivo"
+      }
+    },
+    "triangular": {
+      "modo": "por_zona",
+      "objetivosZona": {
+        "arriba": "sumar",
+        "lateral": "reducir",
+        "posterior": "sin_objetivo"
+      }
+    },
+    "corazon": {
+      "modo": "por_zona",
+      "objetivosZona": {
+        "arriba": "reducir",
+        "lateral": "sumar",
+        "posterior": "sumar"
+      }
+    }
+  }
+};
+  if (typeof module !== "undefined" && module.exports) {
+    module.exports = CATALOGO_DATOS;
+  } else {
+    global.CATALOGO_DATOS = CATALOGO_DATOS;
+  }
+})(typeof window !== "undefined" ? window : globalThis);
+
+</script>
+  <script>
+// Puerto a JavaScript del motor de recomendacion (src/motor/motor.py).
+// Misma especificacion, mismas reglas, sin ninguna desviacion.
+// Se valida contra el motor Python real mediante tests_js/test_paridad.js.
+//
+// Formato UMD minimo (sin dependencias, sin build tools): funciona
+// como <script> global en el navegador y como modulo CommonJS en
+// Node (para las pruebas de paridad).
+(function (global, factory) {
+  if (typeof module !== "undefined" && module.exports) {
+    module.exports = factory(require("./catalogo_datos.js"));
+  } else {
+    global.MOTOR = factory(global.CATALOGO_DATOS);
+  }
+})(typeof window !== "undefined" ? window : globalThis, function (CATALOGO_DATOS) {
+  "use strict";
+
+  var CORTES = CATALOGO_DATOS.cortes;
+  var COMPATIBILIDADES = CATALOGO_DATOS.compatibilidades;
+  var MECANISMOS = CATALOGO_DATOS.mecanismos;
+  var EXCEPCIONES = CATALOGO_DATOS.excepciones;
+  var ROSTROS = CATALOGO_DATOS.rostros;
+
+  var VOLUMEN = { NINGUNO: 0, BAJO: 1, MEDIO: 2, ALTO: 3 };
+  var EJE = { MUY_ANGULAR: 1, ANGULAR: 2, NEUTRO: 3, SUAVE: 4, MUY_SUAVE: 5 };
+  var ZONA_A_CAMPO = { arriba: "volumenArriba", lateral: "volumenLateral", posterior: "volumenPosterior" };
+
+  var MECANISMOS_POR_ID = {};
+  MECANISMOS.forEach(function (m) { MECANISMOS_POR_ID[m.id] = m; });
+
+  var COMPAT_POR_CLAVE = {};
+  COMPATIBILIDADES.forEach(function (c) { COMPAT_POR_CLAVE[c.corteId + "|" + c.textura] = c; });
+
+  var EXCEPCION_POR_CLAVE = {};
+  EXCEPCIONES.forEach(function (e) { EXCEPCION_POR_CLAVE[e.corteId + "|" + e.textura] = e; });
+
+  // -- FASE 1a: puntaje de rostro (0/1/2), condicional por modo --------
+
+  function nivelParaObjetivoZona(objetivo, volumen) {
+    if (objetivo === "sin_objetivo") return null;
+    if (objetivo === "sumar") {
+      if (volumen === VOLUMEN.ALTO) return 2;
+      if (volumen === VOLUMEN.MEDIO) return 1;
+      return 0; // BAJO o NINGUNO
+    }
+    if (objetivo === "reducir") {
+      if (volumen === VOLUMEN.NINGUNO || volumen === VOLUMEN.BAJO) return 2;
+      if (volumen === VOLUMEN.MEDIO) return 1;
+      return 0; // ALTO
+    }
+    throw new Error("Objetivo de zona desconocido: " + objetivo);
+  }
+
+  function rostroPorZona(corte, definicion) {
+    var niveles = [];
+    Object.keys(definicion.objetivosZona).forEach(function (zona) {
+      var campo = ZONA_A_CAMPO[zona];
+      var nivel = nivelParaObjetivoZona(definicion.objetivosZona[zona], corte[campo]);
+      if (nivel !== null) niveles.push(nivel);
+    });
+    if (niveles.length === 0) return 2;
+    return Math.min.apply(null, niveles);
+  }
+
+  function rostroPorEje(corte, definicion) {
+    if (corte.eje >= definicion.objetivoEjeMinimo) return 2;
+    if (corte.eje === EJE.NEUTRO) return 1;
+    return 0;
+  }
+
+  function rostroPorEquilibrio(corte) {
+    var zonasEnAlto = [corte.volumenArriba, corte.volumenLateral, corte.volumenPosterior]
+      .filter(function (v) { return v === VOLUMEN.ALTO; }).length;
+    return zonasEnAlto === 3 ? 0 : 2;
+  }
+
+  function evaluarRostro(corte, formaRostro) {
+    var definicion = ROSTROS[formaRostro];
+    if (!definicion) throw new Error("Forma de rostro desconocida: " + formaRostro);
+    if (definicion.modo === "por_zona") return rostroPorZona(corte, definicion);
+    if (definicion.modo === "por_eje") return rostroPorEje(corte, definicion);
+    if (definicion.modo === "por_equilibrio") return rostroPorEquilibrio(corte);
+    throw new Error("Modo de evaluacion desconocido: " + definicion.modo);
+  }
+
+  // -- FASE 1b: puntaje de textura (lookup, nunca distancia) -----------
+
+  function evaluarTextura(corte, textura) {
+    return COMPAT_POR_CLAVE[corte.id + "|" + textura].valor;
+  }
+
+  // -- FASE 1c: deficit unilateral de densidad/grosor -------------------
+
+  function nivelPorDeficit(referencia, real) {
+    if (real >= referencia) return 2;
+    var deficit = referencia - real;
+    if (deficit === 1) return 1;
+    return 0; // deficit === 2
+  }
+
+  function evaluarDensidad(corte, densidadCliente) {
+    return nivelPorDeficit(corte.densidadReferencia, densidadCliente);
+  }
+
+  function evaluarGrosor(corte, grosorCliente) {
+    return nivelPorDeficit(corte.grosorReferencia, grosorCliente);
+  }
+
+  // -- FASE 3: etiquetado SOLIDO / ACEPTABLE / DEBIL ---------------------
+
+  function etiquetar(rostro, densidad, grosor) {
+    var ambosEnCero = densidad === 0 && grosor === 0;
+    var algunEjeEnCero = densidad === 0 || grosor === 0;
+    if (rostro === 2 && !ambosEnCero) return "solido";
+    if (rostro === 1 && algunEjeEnCero) return "debil";
+    return "aceptable";
+  }
+
+  // -- Gates + evaluacion de candidatos ----------------------------------
+
+  function evaluarCandidatos(diagnostico) {
+    var candidatos = [];
+    CORTES.forEach(function (corte) {
+      var rostro = evaluarRostro(corte, diagnostico.formaRostro);
+      if (rostro === 0) return; // gate: contradice el objetivo de visagismo
+      var textura = evaluarTextura(corte, diagnostico.textura);
+      if (textura === 0) return; // gate: imposible de ejecutar con esta textura
+      var densidad = evaluarDensidad(corte, diagnostico.densidad);
+      var grosor = evaluarGrosor(corte, diagnostico.grosor);
+      var etiqueta = etiquetar(rostro, densidad, grosor);
+      candidatos.push({ corte: corte, rostro: rostro, textura: textura, densidad: densidad, grosor: grosor, etiqueta: etiqueta });
+    });
+    return candidatos;
+  }
+
+  // -- FASE 4: comparador lexicografico completo -------------------------
+
+  function claveOrden(candidato) {
+    return [
+      -candidato.rostro,
+      -candidato.textura,
+      -Math.min(candidato.densidad, candidato.grosor),
+      -(candidato.densidad + candidato.grosor),
+      candidato.corte.mantenimiento,
+    ];
+  }
+
+  function compararCandidatos(a, b) {
+    var claveA = claveOrden(a);
+    var claveB = claveOrden(b);
+    for (var i = 0; i < claveA.length; i++) {
+      if (claveA[i] !== claveB[i]) return claveA[i] - claveB[i];
+    }
+    if (a.corte.nombre < b.corte.nombre) return -1;
+    if (a.corte.nombre > b.corte.nombre) return 1;
+    return 0;
+  }
+
+  function ordenar(candidatos) {
+    return candidatos.slice().sort(compararCandidatos);
+  }
+
+  // -- FASE 6: explicacion y advertencias --------------------------------
+
+  var NOMBRE_DENSIDAD = { 1: "baja", 2: "media", 3: "alta" };
+  var NOMBRE_GROSOR = { 1: "fino", 2: "medio", 3: "grueso" };
+  var NOMBRE_MANTENIMIENTO = { 1: "bajo", 2: "medio", 3: "alto" };
+
+  var PLANTILLA_ADVERTENCIA = {
+    0: "Advertencia fuerte: {articulo} {atributo} del cliente ({real}) esta muy por debajo " +
+       "de la referencia de este corte ({referencia}); el resultado puede verse " +
+       "notablemente comprometido.",
+    1: "Advertencia leve: {articulo} {atributo} del cliente ({real}) esta un escalon " +
+       "por debajo de la referencia de este corte ({referencia}); el corte es viable " +
+       "con un ajuste tecnico menor.",
+  };
+
+  function formatear(plantilla, valores) {
+    return plantilla.replace(/\{(\w+)\}/g, function (coincidencia, clave) {
+      return Object.prototype.hasOwnProperty.call(valores, clave) ? valores[clave] : coincidencia;
+    });
+  }
+
+  function calcularAdvertencias(corte, diagnostico, densidadScore, grosorScore) {
+    var advertencias = [];
+    if (densidadScore === 0 || densidadScore === 1) {
+      advertencias.push(formatear(PLANTILLA_ADVERTENCIA[densidadScore], {
+        articulo: "la",
+        atributo: "densidad",
+        real: NOMBRE_DENSIDAD[diagnostico.densidad],
+        referencia: NOMBRE_DENSIDAD[corte.densidadReferencia],
+      }));
+    }
+    if (grosorScore === 0 || grosorScore === 1) {
+      advertencias.push(formatear(PLANTILLA_ADVERTENCIA[grosorScore], {
+        articulo: "el",
+        atributo: "grosor",
+        real: NOMBRE_GROSOR[diagnostico.grosor],
+        referencia: NOMBRE_GROSOR[corte.grosorReferencia],
+      }));
+    }
+    return advertencias;
+  }
+
+  function generarExplicacion(candidato, diagnostico) {
+    var corte = candidato.corte;
+    var mecanismo = MECANISMOS_POR_ID[corte.mecanismoId];
+    var excepcion = EXCEPCION_POR_CLAVE[corte.id + "|" + diagnostico.textura];
+    return {
+      nombre: corte.nombre,
+      familia: corte.familia,
+      etiqueta: candidato.etiqueta,
+      efectos_visagismo: mecanismo.efectos.slice(),
+      mecanismo: mecanismo.principioTecnico,
+      nota_tecnica_textura: excepcion ? excepcion.texto : null,
+      advertencias: calcularAdvertencias(corte, diagnostico, candidato.densidad, candidato.grosor),
+      mantenimiento: NOMBRE_MANTENIMIENTO[corte.mantenimiento],
+    };
+  }
+
+  // -- FASE 5: seleccion final (maximo 3, nunca fabricado) ----------------
+
+  var MENSAJE_CATALOGO_VACIO = (
+    "Ningun corte de la base de conocimiento actual cumple simultaneamente con " +
+    "el objetivo de visagismo de este rostro y con la viabilidad de esta " +
+    "textura/densidad/grosor. Se recomienda que el barbero aplique su criterio " +
+    "profesional directamente; este caso queda registrado como un hueco de " +
+    "cobertura del catalogo."
+  );
+
+  function recomendar(diagnostico) {
+    var candidatos = evaluarCandidatos(diagnostico);
+    if (candidatos.length === 0) {
+      return { recomendaciones: [], mensaje_vacio: MENSAJE_CATALOGO_VACIO };
+    }
+    var ordenados = ordenar(candidatos);
+    var top = ordenados.slice(0, 3);
+    var recomendaciones = top.map(function (c) { return generarExplicacion(c, diagnostico); });
+    return { recomendaciones: recomendaciones, mensaje_vacio: null };
+  }
+
+  return {
+    evaluarRostro: evaluarRostro,
+    evaluarTextura: evaluarTextura,
+    evaluarDensidad: evaluarDensidad,
+    evaluarGrosor: evaluarGrosor,
+    etiquetar: etiquetar,
+    evaluarCandidatos: evaluarCandidatos,
+    ordenar: ordenar,
+    generarExplicacion: generarExplicacion,
+    recomendar: recomendar,
+    MENSAJE_CATALOGO_VACIO: MENSAJE_CATALOGO_VACIO,
+  };
+});
+
+</script>
+  <script>
+// Puerto a JavaScript de la capa de entrada/salida
+// (src/entrada_salida/validacion.py + servicio.py + opciones.py).
+// Unico punto de contacto entre la interfaz y el motor -- igual que
+// en la version Python, este archivo nunca calcula nada de
+// visagismo, solo valida y transporta.
+(function (global, factory) {
+  if (typeof module !== "undefined" && module.exports) {
+    module.exports = factory(require("./motor.js"));
+  } else {
+    global.ENTRADA_SALIDA = factory(global.MOTOR);
+  }
+})(typeof window !== "undefined" ? window : globalThis, function (MOTOR) {
+  "use strict";
+
+  function DiagnosticoInvalido(mensaje) {
+    this.name = "DiagnosticoInvalido";
+    this.message = mensaje;
+  }
+  DiagnosticoInvalido.prototype = Object.create(Error.prototype);
+  DiagnosticoInvalido.prototype.constructor = DiagnosticoInvalido;
+
+  var FORMA_ROSTRO_VALORES = ["ovalado", "redondo", "cuadrado", "alargado", "triangular", "corazon"];
+  var TEXTURA_VALORES = ["liso", "ondulado", "rizado", "afro"];
+  var DENSIDAD_VALORES = ["baja", "media", "alta"];
+  var GROSOR_VALORES = ["fino", "medio", "grueso"];
+
+  var DENSIDAD_NOMBRE_A_NUMERO = { baja: 1, media: 2, alta: 3 };
+  var GROSOR_NOMBRE_A_NUMERO = { fino: 1, medio: 2, grueso: 3 };
+
+  function normalizar(texto) {
+    return String(texto).trim().toLowerCase();
+  }
+
+  function mapaDesdeValores(valores) {
+    var mapa = {};
+    valores.forEach(function (v) { mapa[normalizar(v)] = v; });
+    return mapa;
+  }
+
+  var MAPA_FORMA_ROSTRO = mapaDesdeValores(FORMA_ROSTRO_VALORES);
+  var MAPA_TEXTURA = mapaDesdeValores(TEXTURA_VALORES);
+
+  function resolver(valorCrudo, mapa, nombreCampo, valoresPermitidos) {
+    var vacio = valorCrudo === null || valorCrudo === undefined ||
+      (typeof valorCrudo === "string" && valorCrudo.trim() === "");
+    if (vacio) {
+      throw new DiagnosticoInvalido(
+        "Falta el campo obligatorio '" + nombreCampo + "'. Valores permitidos: " +
+        valoresPermitidos.join(", ") + "."
+      );
+    }
+    var clave = normalizar(valorCrudo);
+    if (!Object.prototype.hasOwnProperty.call(mapa, clave)) {
+      throw new DiagnosticoInvalido(
+        "Valor invalido para '" + nombreCampo + "': '" + valorCrudo + "'. Valores permitidos: " +
+        valoresPermitidos.join(", ") + "."
+      );
+    }
+    return mapa[clave];
+  }
+
+  function resolverFormaRostro(v) { return resolver(v, MAPA_FORMA_ROSTRO, "forma_rostro", FORMA_ROSTRO_VALORES); }
+  function resolverTextura(v) { return resolver(v, MAPA_TEXTURA, "textura", TEXTURA_VALORES); }
+
+  function resolverDensidad(v) {
+    var nombre = resolver(v, mapaDesdeValores(DENSIDAD_VALORES), "densidad", DENSIDAD_VALORES);
+    return DENSIDAD_NOMBRE_A_NUMERO[nombre];
+  }
+
+  function resolverGrosor(v) {
+    var nombre = resolver(v, mapaDesdeValores(GROSOR_VALORES), "grosor", GROSOR_VALORES);
+    return GROSOR_NOMBRE_A_NUMERO[nombre];
+  }
+
+  function construirDiagnostico(rostro, textura, densidad, grosor) {
+    return {
+      formaRostro: resolverFormaRostro(rostro),
+      textura: resolverTextura(textura),
+      densidad: resolverDensidad(densidad),
+      grosor: resolverGrosor(grosor),
+    };
+  }
+
+  function generarRecomendacion(rostro, textura, densidad, grosor) {
+    var diagnostico = construirDiagnostico(rostro, textura, densidad, grosor);
+    return MOTOR.recomendar(diagnostico);
+  }
+
+  function etiquetaLegible(valor) {
+    return valor.charAt(0).toUpperCase() + valor.slice(1);
+  }
+
+  function listaDeOpciones(valores) {
+    return valores.map(function (v) { return { valor: v, etiqueta: etiquetaLegible(v) }; });
+  }
+
+  function listarOpciones() {
+    return {
+      forma_rostro: listaDeOpciones(FORMA_ROSTRO_VALORES),
+      textura: listaDeOpciones(TEXTURA_VALORES),
+      densidad: listaDeOpciones(DENSIDAD_VALORES),
+      grosor: listaDeOpciones(GROSOR_VALORES),
+    };
+  }
+
+  return {
+    DiagnosticoInvalido: DiagnosticoInvalido,
+    construirDiagnostico: construirDiagnostico,
+    generarRecomendacion: generarRecomendacion,
+    listarOpciones: listarOpciones,
+  };
+});
+
+</script>
+  <script>
+"use strict";
+
+// Capa de PRESENTACION del asistente VISAGE. No calcula nada de
+// visagismo: solo arma el DOM alrededor de lo que ya devuelven
+// ENTRADA_SALIDA.listarOpciones() y ENTRADA_SALIDA.generarRecomendacion()
+// (motor.js / entrada_salida.js, sin tocar). Cambiar este archivo
+// nunca puede cambiar una recomendacion, solo como se muestra.
+
+const CAMPOS = ["forma_rostro", "textura", "densidad", "grosor"];
+
+const ETIQUETAS_PASO = {
+  forma_rostro: "Forma del rostro",
+  textura: "Textura del cabello",
+  densidad: "Densidad",
+  grosor: "Grosor",
+};
+
+const PREGUNTAS_PASO = {
+  forma_rostro: "¿Qué forma de rostro tiene el cliente?",
+  textura: "¿Qué textura de cabello tiene?",
+  densidad: "¿Qué densidad de cabello tiene?",
+  grosor: "¿Qué grosor de cabello tiene?",
+};
+
+const GLIFOS_POR_CAMPO = {
+  forma_rostro: ICONOS.ROSTRO,
+  textura: ICONOS.TEXTURA,
+  densidad: ICONOS.DENSIDAD,
+  grosor: ICONOS.GROSOR,
+};
+
+const ETIQUETA_TEXTO = { solido: "Sólido", aceptable: "Aceptable", debil: "Débil" };
+
+// Correcciones tipograficas de presentacion (acentos en español) que
+// no existen en el valor crudo del enum (por diseño, los valores del
+// catalogo son ASCII: "corazon", no "corazón"). Esto NUNCA se usa
+// para calcular nada -- solo para mostrar el nombre correctamente
+// escrito; el valor real que via al motor sigue siendo "corazon".
+const CORRECCION_TIPOGRAFICA = { Corazon: "Corazón" };
+
+function etiquetaVisible(texto) {
+  return CORRECCION_TIPOGRAFICA[texto] || texto;
+}
+
+const opciones = ENTRADA_SALIDA.listarOpciones();
+let paso = 0;
+const seleccion = { forma_rostro: null, textura: null, densidad: null, grosor: null };
+
+const el = (id) => document.getElementById(id);
+
+function opcionPorValor(campo, valor) {
+  return opciones[campo].find((o) => o.valor === valor);
+}
+
+// -- Marca (logo de bienvenida + logo compacto del encabezado) --------
+// ICONOS.LOGO() genera un id de degradado nuevo en cada llamada para
+// que las dos instancias en la pagina no choquen de id.
+
+el("intro-retrato").innerHTML = ICONOS.RETRATO();
+el("intro-logo").innerHTML = ICONOS.LOGO();
+el("marca-logo").innerHTML = ICONOS.LOGO();
+el("intro-nota").innerHTML = ICONOS.UTIL.info + " Todo el cálculo ocurre en este navegador, sin conexión.";
+el("nota-pie").innerHTML = ICONOS.UTIL.info + " Todo el cálculo ocurre en este mismo navegador, sin conexión.";
+
+// -- Navegacion entre secciones ---------------------------------------
+
+function mostrarSeccion(idVisible) {
+  el("intro").hidden = idVisible !== "intro";
+  el("marca-header").hidden = idVisible === "intro";
+  el("nota-pie").hidden = idVisible === "intro";
+  el("stepper").hidden = idVisible !== "asistente";
+  el("asistente").hidden = idVisible !== "asistente";
+  el("resultados").hidden = idVisible !== "resultados";
+}
+
+el("btn-comenzar").addEventListener("click", () => {
+  renderPaso();
+});
+
+function ocultarError() {
+  el("error-global").hidden = true;
+}
+
+function mostrarError(mensaje) {
+  el("error-global").innerHTML = ICONOS.UTIL.error + `<span>${mensaje}</span>`;
+  el("error-global").hidden = false;
+}
+
+// -- Paso a paso --------------------------------------------------------
+
+function renderPaso() {
+  ocultarError();
+  mostrarSeccion("asistente");
+
+  const campo = CAMPOS[paso];
+  el("eyebrow-paso").textContent = `Paso ${paso + 1} de ${CAMPOS.length} — ${ETIQUETAS_PASO[campo]}`;
+  el("titulo-paso").textContent = PREGUNTAS_PASO[campo];
+
+  const contenedor = el("opciones-paso");
+  contenedor.innerHTML = "";
+  const glifos = GLIFOS_POR_CAMPO[campo];
+
+  opciones[campo].forEach((opcion) => {
+    const boton = document.createElement("button");
+    boton.type = "button";
+    boton.className = "tarjeta-opcion";
+    if (seleccion[campo] === opcion.valor) boton.classList.add("seleccionada");
+    boton.setAttribute("aria-pressed", seleccion[campo] === opcion.valor ? "true" : "false");
+    boton.innerHTML =
+      `<span class="glifo">${glifos[opcion.valor] || ""}</span>` +
+      `<span>${etiquetaVisible(opcion.etiqueta)}</span>` +
+      `<span class="marca-check">${ICONOS.UTIL.check}</span>`;
+    boton.addEventListener("click", () => seleccionar(campo, opcion.valor));
+    contenedor.appendChild(boton);
+  });
+
+  actualizarStepper();
+  actualizarNavegacion();
+}
+
+function seleccionar(campo, valor) {
+  seleccion[campo] = valor;
+  renderPaso();
+}
+
+function actualizarStepper() {
+  const avance = (paso / (CAMPOS.length - 1)) * 100;
+  el("stepper").style.setProperty("--avance", `${avance}%`);
+  document.querySelectorAll("#stepper .paso").forEach((li, indice) => {
+    li.classList.toggle("activo", indice === paso);
+    li.classList.toggle("completo", indice < paso);
+  });
+}
+
+function actualizarNavegacion() {
+  const campoActual = CAMPOS[paso];
+  const btnAtras = el("btn-atras");
+  btnAtras.hidden = paso === 0;
+  btnAtras.innerHTML = ICONOS.UTIL.flecha + "<span>Atrás</span>";
+  el("btn-siguiente").disabled = !seleccion[campoActual];
+  el("btn-siguiente").textContent = paso === CAMPOS.length - 1 ? "Generar recomendaciones" : "Siguiente";
+}
+
+el("btn-atras").addEventListener("click", () => {
+  paso = Math.max(0, paso - 1);
+  renderPaso();
+});
+
+el("btn-siguiente").addEventListener("click", () => {
+  if (paso < CAMPOS.length - 1) {
+    paso += 1;
+    renderPaso();
+  } else {
+    generarRecomendaciones();
+  }
+});
+
+el("btn-reiniciar").addEventListener("click", () => {
+  paso = 0;
+  CAMPOS.forEach((campo) => { seleccion[campo] = null; });
+  renderPaso();
+});
+
+// -- Generacion de recomendaciones ---------------------------------------
+
+function generarRecomendaciones() {
+  // Micro-interaccion breve en el boton antes de mostrar el informe
+  // (el calculo en si es instantaneo: no hay red ni espera real).
+  const boton = el("btn-siguiente");
+  boton.classList.add("procesando");
+  window.setTimeout(() => {
+    boton.classList.remove("procesando");
+    try {
+      const resultado = ENTRADA_SALIDA.generarRecomendacion(
+        seleccion.forma_rostro, seleccion.textura, seleccion.densidad, seleccion.grosor,
+      );
+      mostrarResultados(resultado);
+    } catch (error) {
+      if (error instanceof ENTRADA_SALIDA.DiagnosticoInvalido) {
+        mostrarError(error.message);
+      } else {
+        mostrarError("Ocurrió un error inesperado generando la recomendación.");
+        throw error;
+      }
+    }
+  }, 180);
+}
+
+// -- Informe de resultados -----------------------------------------------
+
+function renderResumenDiagnostico() {
+  const contenedor = el("resumen-diagnostico");
+  contenedor.innerHTML = "";
+  CAMPOS.forEach((campo) => {
+    const opcion = opcionPorValor(campo, seleccion[campo]);
+    const glifo = GLIFOS_POR_CAMPO[campo][seleccion[campo]] || "";
+    const item = document.createElement("div");
+    item.className = "resumen-item";
+    item.innerHTML =
+      `<span class="glifo">${glifo}</span>` +
+      `<span class="resumen-etiqueta">${ETIQUETAS_PASO[campo]}</span>` +
+      `<span class="resumen-valor">${opcion ? etiquetaVisible(opcion.etiqueta) : "—"}</span>`;
+    contenedor.appendChild(item);
+  });
+}
+
+function mostrarResultados(datos) {
+  mostrarSeccion("resultados");
+  renderResumenDiagnostico();
+
+  const bloqueRecomendaciones = el("bloque-recomendaciones");
+  const vacio = el("mensaje-vacio");
+  const lista = el("lista-recomendaciones");
+  lista.innerHTML = "";
+
+  if (datos.mensaje_vacio) {
+    bloqueRecomendaciones.hidden = true;
+    vacio.innerHTML = ICONOS.UTIL.advertencia + `<span>${datos.mensaje_vacio}</span>`;
+    vacio.hidden = false;
+    return;
+  }
+
+  vacio.hidden = true;
+  bloqueRecomendaciones.hidden = false;
+  datos.recomendaciones.forEach((rec, indice) => {
+    lista.appendChild(crearTarjetaRecomendacion(rec, indice + 1));
+  });
+
+  // Punto de extension preparado para una futura etapa (no
+  // implementada aun, sin datos ficticios): aqui se podria anadir,
+  // por recomendacion, un bloque "Acabado sugerido" (producto de
+  // finalizacion / pomada-cera-arcilla-crema / cuidado) reutilizando
+  // la clase .bloque-porque ya definida en estilos.css. No se
+  // renderiza nada hasta que exista un dato real del motor para ello.
+}
+
+function crearBloque(titulo, texto) {
+  const div = document.createElement("div");
+  div.className = "bloque-porque";
+  div.innerHTML = `<span class="subtitulo-bloque">${titulo}</span><p>${texto}</p>`;
+  return div;
+}
+
+function crearTarjetaRecomendacion(rec, posicion) {
+  const esTop = posicion === 1;
+  const tarjeta = document.createElement("article");
+  tarjeta.className = "tarjeta-recomendacion" + (esTop ? " tarjeta-recomendacion--top" : "");
+  tarjeta.style.setProperty("--retraso", `${(posicion - 1) * 90}ms`);
+
+  const cabecera = document.createElement("div");
+  cabecera.className = "tarjeta-recomendacion-cabecera";
+
+  const numeral = document.createElement("span");
+  numeral.className = "numeral";
+  numeral.textContent = `0${posicion}`;
+
+  const titulos = document.createElement("div");
+  titulos.className = "tarjeta-recomendacion-titulos";
+  titulos.innerHTML =
+    `<h3>${rec.nombre}</h3>` +
+    `<div class="meta-tarjeta">` +
+    `<span class="insignia insignia-${rec.etiqueta}">${ETIQUETA_TEXTO[rec.etiqueta] || rec.etiqueta}</span>` +
+    `<span class="familia">${rec.familia}</span>` +
+    `</div>`;
+
+  cabecera.append(numeral, titulos);
+  tarjeta.appendChild(cabecera);
+
+  if (rec.efectos_visagismo && rec.efectos_visagismo.length) {
+    const chips = document.createElement("div");
+    chips.className = "chips";
+    rec.efectos_visagismo.forEach((efecto) => {
+      const chip = document.createElement("span");
+      chip.className = "chip";
+      chip.textContent = efecto.replace(/_/g, " ");
+      chips.appendChild(chip);
+    });
+    tarjeta.appendChild(chips);
+  }
+
+  tarjeta.appendChild(crearBloque("¿Por qué funciona?", rec.mecanismo));
+
+  if (rec.nota_tecnica_textura) {
+    const nota = document.createElement("div");
+    nota.className = "nota-tecnica";
+    nota.innerHTML = ICONOS.UTIL.info + `<span><strong>Nota técnica para esta textura:</strong> ${rec.nota_tecnica_textura}</span>`;
+    tarjeta.appendChild(nota);
+  }
+
+  if (rec.advertencias && rec.advertencias.length) {
+    const bloqueAdvertencias = document.createElement("div");
+    bloqueAdvertencias.className = "advertencias";
+    rec.advertencias.forEach((texto) => {
+      const item = document.createElement("div");
+      item.className = "advertencia";
+      item.innerHTML = ICONOS.UTIL.advertencia + `<span>${texto}</span>`;
+      bloqueAdvertencias.appendChild(item);
+    });
+    tarjeta.appendChild(bloqueAdvertencias);
+  }
+
+  const pie = document.createElement("div");
+  pie.className = "pie-tarjeta";
+  pie.innerHTML =
+    `<span class="glifo">${ICONOS.UTIL.mantenimiento}</span>` +
+    `<span>Mantenimiento: <strong>${rec.mantenimiento}</strong></span>`;
+  tarjeta.appendChild(pie);
+
+  return tarjeta;
+}
+
+mostrarSeccion("intro");
+
+</script>
+</body>
+</html>
