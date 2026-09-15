@@ -29,10 +29,11 @@
       '<defs><linearGradient id="' + idGrad + '" x1="0%" y1="0%" x2="100%" y2="100%">' +
       '<stop offset="0%" stop-color="#f0d9a8"/><stop offset="55%" stop-color="#c9a15e"/><stop offset="100%" stop-color="#8a6530"/>' +
       "</linearGradient></defs>" +
-      '<path d="M16,8 L48,80 L80,8" stroke="url(#' + idGrad + ')" stroke-width="14" ' +
+      '<path d="M16,8 L48,80 L80,8" stroke="url(#' + idGrad + ')" stroke-width="13" ' +
       'stroke-linecap="round" stroke-linejoin="round"/>' +
+      '<circle cx="48" cy="80" r="3.4" fill="url(#' + idGrad + ')"/>' +
       '<path d="M38,18 C45,16 51,20 52,26 C53,31 51,35 53,39 C55,43 57,45 55,49 C53,53 48,55 43,54" ' +
-      'stroke="#f4efe6" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>' +
+      'stroke="#f4efe6" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" opacity="0.92"/>' +
       "</svg>"
     );
   }

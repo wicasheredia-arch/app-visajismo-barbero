@@ -96,6 +96,7 @@ body {
 h1, h2, h3 {
   font-family: var(--fuente-display);
   font-weight: 600;
+  letter-spacing: -0.01em;
   margin: 0;
   text-wrap: balance;
   color: var(--marfil);
@@ -327,6 +328,13 @@ h1, h2, h3 {
   border-color: var(--champan);
   box-shadow: 0 0 0 5px var(--champan-tenue);
   transform: scale(1.05);
+  animation: nodo-pulso 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes nodo-pulso {
+  0% { box-shadow: 0 0 0 0 var(--champan-borde); }
+  60% { box-shadow: 0 0 0 8px transparent; }
+  100% { box-shadow: 0 0 0 5px var(--champan-tenue); }
 }
 
 .stepper .etiqueta-nodo {
@@ -356,7 +364,13 @@ h1, h2, h3 {
 
 #asistente {
   padding: 1.75rem 1.5rem 1.5rem;
-  animation: entrar-paso 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* .paso-entra se quita y se vuelve a poner en cada paso (ver app.js)
+   para que la transicion se repita en cada cambio de paso, no solo
+   una vez al cargar la pagina. */
+.paso-entra {
+  animation: entrar-paso 0.36s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @keyframes entrar-paso {
@@ -375,7 +389,8 @@ h1, h2, h3 {
 }
 
 #titulo-paso {
-  font-size: 1.35rem;
+  font-size: clamp(1.28rem, 4.6vw, 1.5rem);
+  line-height: 1.25;
   margin: 0 0 1.35rem;
 }
 
@@ -401,17 +416,19 @@ h1, h2, h3 {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.55rem;
-  min-height: 96px;
-  padding: 1rem 0.6rem 0.8rem;
+  gap: 0.6rem;
+  min-height: 100px;
+  padding: 1.05rem 0.6rem 0.85rem;
   border-radius: var(--radio-m);
   border: 1.5px solid var(--linea);
-  background: var(--carbon);
+  background: linear-gradient(180deg, var(--carbon-alto) 0%, var(--carbon) 100%);
   color: var(--marfil);
   font-family: var(--fuente-cuerpo);
-  font-size: 0.88rem;
+  font-size: 0.95rem;
   font-weight: 700;
+  letter-spacing: 0.005em;
   cursor: pointer;
+  box-shadow: 0 8px 18px -16px rgba(0, 0, 0, 0.7);
   transition: border-color 0.18s ease, background 0.18s ease, transform 0.12s ease, box-shadow 0.18s ease;
   -webkit-tap-highlight-color: transparent;
 }
@@ -425,16 +442,22 @@ h1, h2, h3 {
 .tarjeta-opcion:active { transform: translateY(0) scale(0.97); }
 
 .tarjeta-opcion .glifo {
-  width: 34px;
-  height: 34px;
+  width: 37px;
+  height: 37px;
   color: var(--piedra);
   transition: color 0.18s ease;
 }
 
 .tarjeta-opcion.seleccionada {
   border-color: var(--champan);
-  background: linear-gradient(180deg, rgba(201, 161, 94, 0.16), rgba(201, 161, 94, 0.05));
-  box-shadow: 0 0 0 1px var(--champan) inset, 0 10px 24px -16px rgba(201, 161, 94, 0.5);
+  background: linear-gradient(180deg, rgba(201, 161, 94, 0.18), rgba(201, 161, 94, 0.05));
+  box-shadow: 0 0 0 1px var(--champan) inset, 0 12px 26px -14px rgba(201, 161, 94, 0.55);
+  animation: destello-seleccion 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes destello-seleccion {
+  0% { box-shadow: 0 0 0 1px var(--champan) inset, 0 0 0 6px var(--champan-tenue); }
+  100% { box-shadow: 0 0 0 1px var(--champan) inset, 0 12px 26px -14px rgba(201, 161, 94, 0.55); }
 }
 
 .tarjeta-opcion.seleccionada .glifo { color: var(--champan-vivo); }
@@ -515,6 +538,18 @@ h1, h2, h3 {
   cursor: not-allowed;
 }
 
+/* Se agrega brevemente por JS al pasar de deshabilitado a habilitado
+   (ver actualizarNavegacion en app.js) -- un brillo discreto que
+   confirma que la seleccion quedo lista para avanzar. */
+.boton-primario.recien-habilitado {
+  animation: brillo-boton 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes brillo-boton {
+  0% { box-shadow: 0 0 0 0 var(--champan-borde); }
+  100% { box-shadow: 0 14px 28px -14px rgba(201, 161, 94, 0.55); }
+}
+
 .boton-secundario {
   flex: none;
   background: transparent;
@@ -566,7 +601,7 @@ h1, h2, h3 {
 /* Informe de resultados                                             */
 /* ---------------------------------------------------------------- */
 
-#resultados { animation: entrar-paso 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+#resultados.paso-entra { animation: entrar-paso 0.42s cubic-bezier(0.16, 1, 0.3, 1); }
 
 .informe-cabecera { margin: 0 0 1.25rem; }
 
@@ -603,7 +638,7 @@ h1, h2, h3 {
 
 .resumen-item .resumen-etiqueta {
   font-size: 0.62rem;
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--piedra-tenue);
@@ -699,8 +734,8 @@ h1, h2, h3 {
 
 .familia {
   font-size: 0.74rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
+  font-weight: 600;
+  letter-spacing: 0.03em;
   text-transform: uppercase;
   color: var(--piedra-tenue);
 }
@@ -754,7 +789,7 @@ h1, h2, h3 {
 .bloque-porque .subtitulo-bloque {
   display: block;
   font-size: 0.68rem;
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--piedra-tenue);
@@ -944,10 +979,11 @@ h1, h2, h3 {
       '<defs><linearGradient id="' + idGrad + '" x1="0%" y1="0%" x2="100%" y2="100%">' +
       '<stop offset="0%" stop-color="#f0d9a8"/><stop offset="55%" stop-color="#c9a15e"/><stop offset="100%" stop-color="#8a6530"/>' +
       "</linearGradient></defs>" +
-      '<path d="M16,8 L48,80 L80,8" stroke="url(#' + idGrad + ')" stroke-width="14" ' +
+      '<path d="M16,8 L48,80 L80,8" stroke="url(#' + idGrad + ')" stroke-width="13" ' +
       'stroke-linecap="round" stroke-linejoin="round"/>' +
+      '<circle cx="48" cy="80" r="3.4" fill="url(#' + idGrad + ')"/>' +
       '<path d="M38,18 C45,16 51,20 52,26 C53,31 51,35 53,39 C55,43 57,45 55,49 C53,53 48,55 43,54" ' +
-      'stroke="#f4efe6" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>' +
+      'stroke="#f4efe6" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" opacity="0.92"/>' +
       "</svg>"
     );
   }
@@ -2406,6 +2442,15 @@ function opcionPorValor(campo, valor) {
   return opciones[campo].find((o) => o.valor === valor);
 }
 
+// Quita y vuelve a poner una clase de animacion para que se repita
+// cada vez (un cambio de paso, un nuevo informe), no solo la primera
+// vez que el elemento aparece en el DOM. Puramente cosmetico.
+function reiniciarAnimacion(elemento, clase) {
+  elemento.classList.remove(clase);
+  void elemento.offsetWidth;
+  elemento.classList.add(clase);
+}
+
 // -- Marca (logo de bienvenida + logo compacto del encabezado) --------
 // ICONOS.LOGO() genera un id de degradado nuevo en cada llamada para
 // que las dos instancias en la pagina no choquen de id.
@@ -2445,6 +2490,7 @@ function mostrarError(mensaje) {
 function renderPaso() {
   ocultarError();
   mostrarSeccion("asistente");
+  reiniciarAnimacion(el("asistente"), "paso-entra");
 
   const campo = CAMPOS[paso];
   el("eyebrow-paso").textContent = `Paso ${paso + 1} de ${CAMPOS.length} — ${ETIQUETAS_PASO[campo]}`;
@@ -2491,8 +2537,15 @@ function actualizarNavegacion() {
   const btnAtras = el("btn-atras");
   btnAtras.hidden = paso === 0;
   btnAtras.innerHTML = ICONOS.UTIL.flecha + "<span>Atrás</span>";
-  el("btn-siguiente").disabled = !seleccion[campoActual];
-  el("btn-siguiente").textContent = paso === CAMPOS.length - 1 ? "Generar recomendaciones" : "Siguiente";
+
+  const btnSiguiente = el("btn-siguiente");
+  const habilitadoAntes = !btnSiguiente.disabled;
+  const habilitadoAhora = Boolean(seleccion[campoActual]);
+  btnSiguiente.disabled = !habilitadoAhora;
+  btnSiguiente.textContent = paso === CAMPOS.length - 1 ? "Generar recomendaciones" : "Siguiente";
+  if (habilitadoAhora && !habilitadoAntes) {
+    reiniciarAnimacion(btnSiguiente, "recien-habilitado");
+  }
 }
 
 el("btn-atras").addEventListener("click", () => {
@@ -2560,6 +2613,7 @@ function renderResumenDiagnostico() {
 
 function mostrarResultados(datos) {
   mostrarSeccion("resultados");
+  reiniciarAnimacion(el("resultados"), "paso-entra");
   renderResumenDiagnostico();
 
   const bloqueRecomendaciones = el("bloque-recomendaciones");

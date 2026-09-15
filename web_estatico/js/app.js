@@ -52,6 +52,15 @@ function opcionPorValor(campo, valor) {
   return opciones[campo].find((o) => o.valor === valor);
 }
 
+// Quita y vuelve a poner una clase de animacion para que se repita
+// cada vez (un cambio de paso, un nuevo informe), no solo la primera
+// vez que el elemento aparece en el DOM. Puramente cosmetico.
+function reiniciarAnimacion(elemento, clase) {
+  elemento.classList.remove(clase);
+  void elemento.offsetWidth;
+  elemento.classList.add(clase);
+}
+
 // -- Marca (logo de bienvenida + logo compacto del encabezado) --------
 // ICONOS.LOGO() genera un id de degradado nuevo en cada llamada para
 // que las dos instancias en la pagina no choquen de id.
@@ -91,6 +100,7 @@ function mostrarError(mensaje) {
 function renderPaso() {
   ocultarError();
   mostrarSeccion("asistente");
+  reiniciarAnimacion(el("asistente"), "paso-entra");
 
   const campo = CAMPOS[paso];
   el("eyebrow-paso").textContent = `Paso ${paso + 1} de ${CAMPOS.length} — ${ETIQUETAS_PASO[campo]}`;
@@ -137,8 +147,15 @@ function actualizarNavegacion() {
   const btnAtras = el("btn-atras");
   btnAtras.hidden = paso === 0;
   btnAtras.innerHTML = ICONOS.UTIL.flecha + "<span>Atrás</span>";
-  el("btn-siguiente").disabled = !seleccion[campoActual];
-  el("btn-siguiente").textContent = paso === CAMPOS.length - 1 ? "Generar recomendaciones" : "Siguiente";
+
+  const btnSiguiente = el("btn-siguiente");
+  const habilitadoAntes = !btnSiguiente.disabled;
+  const habilitadoAhora = Boolean(seleccion[campoActual]);
+  btnSiguiente.disabled = !habilitadoAhora;
+  btnSiguiente.textContent = paso === CAMPOS.length - 1 ? "Generar recomendaciones" : "Siguiente";
+  if (habilitadoAhora && !habilitadoAntes) {
+    reiniciarAnimacion(btnSiguiente, "recien-habilitado");
+  }
 }
 
 el("btn-atras").addEventListener("click", () => {
@@ -206,6 +223,7 @@ function renderResumenDiagnostico() {
 
 function mostrarResultados(datos) {
   mostrarSeccion("resultados");
+  reiniciarAnimacion(el("resultados"), "paso-entra");
   renderResumenDiagnostico();
 
   const bloqueRecomendaciones = el("bloque-recomendaciones");
