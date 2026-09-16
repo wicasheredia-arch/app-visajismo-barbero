@@ -37,6 +37,25 @@ function etiquetaVisible(texto) {
   return CORRECCION_TIPOGRAFICA[texto] || texto;
 }
 
+// Frases orientativas MUY cortas para reconocer cada forma a simple
+// vista. Solo texto de presentacion -- nunca se envian al motor ni
+// participan en ningun calculo. Ver equivalente en web_estatico/js/app.js.
+const DESCRIPCION_ROSTRO = {
+  ovalado: "Más largo que ancho",
+  redondo: "Ancho y de líneas suaves",
+  cuadrado: "Mandíbula marcada",
+  alargado: "Rostro notablemente largo",
+  triangular: "Mandíbula más ancha",
+  corazon: "Frente más ancha, mentón estrecho",
+};
+
+// Etiqueta de posicion en el informe de resultados: solo distingue
+// "la recomendacion principal" del resto ("alternativa"); no
+// reordena, no oculta ni reinterpreta lo que ya decidio el motor.
+function etiquetaPosicion(posicion) {
+  return posicion === 1 ? "Recomendación principal" : "Alternativa";
+}
+
 let opciones = null;
 let paso = 0;
 const seleccion = { forma_rostro: null, textura: null, densidad: null, grosor: null };
@@ -56,7 +75,6 @@ function reiniciarAnimacion(elemento, clase) {
   elemento.classList.add(clase);
 }
 
-el("intro-retrato").innerHTML = ICONOS.RETRATO();
 el("intro-logo").innerHTML = ICONOS.LOGO();
 el("marca-logo").innerHTML = ICONOS.LOGO();
 el("intro-nota").innerHTML = ICONOS.UTIL.info + " Calculado por el motor de visagismo en el servidor.";
@@ -109,15 +127,21 @@ function renderPaso() {
   contenedor.innerHTML = "";
   const glifos = GLIFOS_POR_CAMPO[campo];
 
+  const esRostro = campo === "forma_rostro";
+
   opciones[campo].forEach((opcion) => {
     const boton = document.createElement("button");
     boton.type = "button";
-    boton.className = "tarjeta-opcion";
+    boton.className = "tarjeta-opcion" + (esRostro ? " tarjeta-opcion--rostro" : "");
     if (seleccion[campo] === opcion.valor) boton.classList.add("seleccionada");
     boton.setAttribute("aria-pressed", seleccion[campo] === opcion.valor ? "true" : "false");
+    const descripcion = esRostro && DESCRIPCION_ROSTRO[opcion.valor]
+      ? `<span class="descripcion-rostro">${DESCRIPCION_ROSTRO[opcion.valor]}</span>`
+      : "";
     boton.innerHTML =
       `<span class="glifo">${glifos[opcion.valor] || ""}</span>` +
       `<span>${etiquetaVisible(opcion.etiqueta)}</span>` +
+      descripcion +
       `<span class="marca-check">${ICONOS.UTIL.check}</span>`;
     boton.addEventListener("click", () => seleccionar(campo, opcion.valor));
     contenedor.appendChild(boton);
@@ -259,7 +283,10 @@ function crearBloque(titulo, texto) {
 function crearTarjetaRecomendacion(rec, posicion) {
   const esTop = posicion === 1;
   const tarjeta = document.createElement("article");
-  tarjeta.className = "tarjeta-recomendacion" + (esTop ? " tarjeta-recomendacion--top" : "");
+  tarjeta.className =
+    "tarjeta-recomendacion" +
+    (esTop ? " tarjeta-recomendacion--top" : "") +
+    ` tarjeta-recomendacion--${rec.etiqueta}`;
   tarjeta.style.setProperty("--retraso", `${(posicion - 1) * 90}ms`);
 
   const cabecera = document.createElement("div");
@@ -272,6 +299,7 @@ function crearTarjetaRecomendacion(rec, posicion) {
   const titulos = document.createElement("div");
   titulos.className = "tarjeta-recomendacion-titulos";
   titulos.innerHTML =
+    `<span class="eyebrow-posicion">${etiquetaPosicion(posicion)}</span>` +
     `<h3>${rec.nombre}</h3>` +
     `<div class="meta-tarjeta">` +
     `<span class="insignia insignia-${rec.etiqueta}">${ETIQUETA_TEXTO[rec.etiqueta] || rec.etiqueta}</span>` +

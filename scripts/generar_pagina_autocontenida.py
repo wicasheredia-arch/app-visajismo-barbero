@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-"""Genera docs/index.html: UNA sola pagina HTML con el CSS y los 4
+"""Genera docs/index.html: UNA sola pagina HTML con el CSS, los
 archivos JS (catalogo_datos.js, motor.js, entrada_salida.js, app.js)
-insertados directamente inline, a partir de web_estatico/.
+y la imagen de bienvenida insertados directamente inline, a partir de
+web_estatico/.
 
 Esto NO es un build tool en el sentido de webpack/babel/etc. -- no
 transpila, no minifica, no reescribe nada. Solo concatena texto: lee
@@ -18,6 +19,8 @@ Ejecutar despues de cualquier cambio en web_estatico/:
     python3 scripts/generar_pagina_autocontenida.py
 """
 
+import base64
+import mimetypes
 import re
 import sys
 from pathlib import Path
@@ -33,6 +36,7 @@ DESTINOS = [RAIZ / "docs" / "index.html", RAIZ / "index.html"]
 
 PATRON_CSS = re.compile(r'<link rel="stylesheet" href="([^"]+)">')
 PATRON_JS = re.compile(r'<script src="([^"]+)"></script>')
+PATRON_IMG = re.compile(r'(<img\b[^>]*\bsrc=")(img/[^"]+)(")')
 
 
 def inlinear(html: str) -> str:
@@ -44,8 +48,15 @@ def inlinear(html: str) -> str:
         ruta = ORIGEN / coincidencia.group(1)
         return f"<script>\n{ruta.read_text(encoding='utf-8')}\n</script>"
 
+    def reemplazar_img(coincidencia: "re.Match[str]") -> str:
+        ruta = ORIGEN / coincidencia.group(2)
+        tipo_mime = mimetypes.guess_type(ruta.name)[0] or "application/octet-stream"
+        datos_b64 = base64.b64encode(ruta.read_bytes()).decode("ascii")
+        return f"{coincidencia.group(1)}data:{tipo_mime};base64,{datos_b64}{coincidencia.group(3)}"
+
     html = PATRON_CSS.sub(reemplazar_css, html)
     html = PATRON_JS.sub(reemplazar_js, html)
+    html = PATRON_IMG.sub(reemplazar_img, html)
     return html
 
 
@@ -54,7 +65,7 @@ def main() -> None:
     pagina_final = inlinear(plantilla)
 
     # Verificacion minima de que no quedo ninguna referencia externa.
-    if "<link" in pagina_final or 'src="js/' in pagina_final:
+    if "<link" in pagina_final or 'src="js/' in pagina_final or 'src="img/' in pagina_final:
         print("ERROR: quedaron referencias externas sin inlinear.", file=sys.stderr)
         sys.exit(1)
 

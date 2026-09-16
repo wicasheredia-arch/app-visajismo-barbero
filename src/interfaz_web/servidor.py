@@ -26,6 +26,7 @@ _RUTAS_ESTATICAS = {
     "/estilos.css": ("estilos.css", "text/css; charset=utf-8"),
     "/iconos.js": ("iconos.js", "application/javascript; charset=utf-8"),
     "/app.js": ("app.js", "application/javascript; charset=utf-8"),
+    "/img/retrato-bienvenida.jpg": ("img/retrato-bienvenida.jpg", "image/jpeg"),
 }
 
 

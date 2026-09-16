@@ -127,14 +127,16 @@ h1, h2, h3 {
 }
 
 .intro-retrato {
-  width: min(210px, 56vw);
-  aspect-ratio: 220 / 260;
+  width: min(240px, 62vw);
+  aspect-ratio: 2 / 3;
   margin: 0 0 -1.75rem;
-  -webkit-mask-image: linear-gradient(to bottom, #000 50%, transparent 90%);
-  mask-image: linear-gradient(to bottom, #000 50%, transparent 90%);
+  display: block;
+  object-fit: cover;
+  border-radius: 14px 14px 0 0;
+  filter: saturate(0.96) contrast(1.04);
+  -webkit-mask-image: linear-gradient(to bottom, #000 55%, transparent 92%);
+  mask-image: linear-gradient(to bottom, #000 55%, transparent 92%);
 }
-
-.intro-retrato svg { width: 100%; height: 100%; display: block; }
 
 .intro-logo-envoltura {
   position: relative;
@@ -486,6 +488,26 @@ h1, h2, h3 {
   padding: 0 0.9rem;
 }
 
+/* Variante del paso "forma de rostro": un poco mas alta para dar
+   espacio a la frase orientativa corta, sin volverse pesada. */
+.tarjeta-opcion--rostro {
+  min-height: 122px;
+  gap: 0.4rem;
+}
+
+.descripcion-rostro {
+  font-family: var(--fuente-cuerpo);
+  font-size: 0.66rem;
+  font-weight: 500;
+  letter-spacing: 0.005em;
+  line-height: 1.25;
+  color: var(--piedra-tenue);
+  text-align: center;
+  text-transform: none;
+}
+
+.tarjeta-opcion--rostro.seleccionada .descripcion-rostro { color: var(--piedra); }
+
 /* ---------------------------------------------------------------- */
 /* Navegacion                                                        */
 /* ---------------------------------------------------------------- */
@@ -665,6 +687,7 @@ h1, h2, h3 {
   position: relative;
   background: var(--carbon);
   border: 1px solid var(--linea);
+  border-left: 3px solid transparent;
   border-radius: var(--radio-l);
   padding: 1.35rem 1.3rem 1.5rem;
   box-shadow: var(--sombra-tarjeta);
@@ -674,13 +697,36 @@ h1, h2, h3 {
   animation-delay: var(--retraso, 0ms);
 }
 
+/* Acento por etiqueta: refuerza a simple vista si la recomendacion es
+   fuerte o tiene una reserva tecnica -- independiente de la posicion
+   (01/02/03). El color viene del mismo sistema semantico que ya usa
+   la insignia (SOLIDO/ACEPTABLE/DEBIL), nunca del dorado de marca. */
+.tarjeta-recomendacion--solido { border-left-color: var(--solido); }
+.tarjeta-recomendacion--aceptable { border-left-color: var(--aceptable); }
+.tarjeta-recomendacion--debil { border-left-color: var(--debil); }
+
+.eyebrow-posicion {
+  display: block;
+  font-size: 0.64rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--piedra-tenue);
+  margin: 0 0 0.3rem;
+}
+
+.tarjeta-recomendacion--top .eyebrow-posicion { color: var(--champan); }
+
 @keyframes entrar-tarjeta {
   to { opacity: 1; transform: translateY(0); }
 }
 
 .tarjeta-recomendacion--top {
   background: linear-gradient(165deg, var(--carbon-alto-2) 0%, var(--carbon) 65%);
-  border: 1.5px solid var(--champan-borde);
+  border-top: 1.5px solid var(--champan-borde);
+  border-right: 1.5px solid var(--champan-borde);
+  border-bottom: 1.5px solid var(--champan-borde);
+  border-left-width: 3px;
   box-shadow: var(--sombra-elevada), 0 0 0 1px rgba(201, 161, 94, 0.12) inset;
   padding: 1.6rem 1.45rem 1.7rem;
 }

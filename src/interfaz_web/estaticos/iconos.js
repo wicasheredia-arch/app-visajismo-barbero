@@ -162,37 +162,5 @@
       '<path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" stroke="currentColor" stroke-width="1.6"/></svg>',
   };
 
-  // Retrato editorial de la pantalla de bienvenida: silueta de un
-  // busto de perfil con cabello con volumen, trazo de borde en
-  // degradado dorado (efecto de luz de contorno/rim light) sobre el
-  // fondo oscuro. Es una ilustracion vectorial deliberadamente
-  // abstracta -- no una fotografia (no tenemos forma de generar ni
-  // de licenciar una foto real) -- pensada para transmitir el mismo
-  // estado de animo cinematografico de barberia premium.
-  var _contadorRetrato = 0;
-  function RETRATO() {
-    _contadorRetrato += 1;
-    var idGrad = "gradoRetrato" + _contadorRetrato;
-    return (
-      '<svg viewBox="0 0 220 260" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true">' +
-      '<defs>' +
-      '<linearGradient id="' + idGrad + '-oro" x1="0%" y1="0%" x2="60%" y2="100%">' +
-      '<stop offset="0%" stop-color="#f0d9a8"/><stop offset="100%" stop-color="#8a6530"/>' +
-      "</linearGradient>" +
-      '<linearGradient id="' + idGrad + '-piel" x1="20%" y1="0%" x2="100%" y2="100%">' +
-      '<stop offset="0%" stop-color="#2a2830"/><stop offset="100%" stop-color="#0b0b0d"/>' +
-      "</linearGradient>" +
-      "</defs>" +
-      '<path d="M70,255 C68,210 72,180 92,162 C82,152 76,138 78,124 C72,116 70,104 76,92 ' +
-      "C74,78 82,64 98,55 C108,49 120,47 130,50 C142,44 155,48 160,58 C168,60 172,68 168,76 " +
-      "C174,84 172,94 164,98 C166,108 160,118 150,120 C152,134 146,148 134,156 " +
-      'C150,176 156,206 156,255 Z" ' +
-      'fill="url(#' + idGrad + '-piel)" stroke="url(#' + idGrad + '-oro)" stroke-width="1.6" stroke-linejoin="round"/>' +
-      '<path d="M98,55 C90,64 84,74 84,86 C84,96 88,104 94,110 C90,118 90,126 96,132 C100,140 108,146 118,148" ' +
-      'fill="none" stroke="url(#' + idGrad + '-oro)" stroke-width="1.2" stroke-linecap="round" opacity="0.9"/>' +
-      "</svg>"
-    );
-  }
-
-  return { LOGO: LOGO, RETRATO: RETRATO, ROSTRO: ROSTRO, TEXTURA: TEXTURA, DENSIDAD: DENSIDAD, GROSOR: GROSOR, UTIL: UTIL };
+  return { LOGO: LOGO, ROSTRO: ROSTRO, TEXTURA: TEXTURA, DENSIDAD: DENSIDAD, GROSOR: GROSOR, UTIL: UTIL };
 });
