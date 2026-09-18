@@ -914,6 +914,146 @@ h1, h2, h3 {
 .nota-pie svg { width: 13px; height: 13px; }
 
 /* ---------------------------------------------------------------- */
+/* Motor 2 -- IA Visual (opcional)                                    */
+/* Panel superpuesto, cerrado por defecto. Reutiliza los mismos       */
+/* tokens de marca -- nunca colores nuevos -- para que se sienta      */
+/* parte de la misma app, no un anadido ajeno.                        */
+/* ---------------------------------------------------------------- */
+
+.boton-ia-visual {
+  width: 100%;
+  margin-top: 0.85rem;
+  padding: 0.65rem 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: transparent;
+  border: 1px dashed var(--linea);
+  border-radius: var(--radio-s);
+  color: var(--piedra);
+  font-family: var(--fuente-cuerpo);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.18s ease, color 0.18s ease;
+}
+
+.boton-ia-visual:hover { border-color: var(--champan-borde); color: var(--champan-vivo); }
+.boton-ia-visual svg { width: 15px; height: 15px; flex: none; }
+
+.panel-ia {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: rgba(11, 11, 13, 0.78);
+  padding: 0 0 env(safe-area-inset-bottom, 0px);
+  animation: entrar-paso 0.25s ease;
+}
+
+@media (min-width: 560px) {
+  .panel-ia { align-items: center; }
+}
+
+.panel-ia-contenido {
+  position: relative;
+  width: 100%;
+  max-width: 480px;
+  max-height: 88vh;
+  overflow-y: auto;
+  background: linear-gradient(180deg, var(--carbon-alto) 0%, var(--carbon) 100%);
+  border: 1px solid var(--linea);
+  border-radius: var(--radio-l) var(--radio-l) 0 0;
+  padding: 1.75rem 1.4rem 1.9rem;
+  box-shadow: var(--sombra-elevada);
+}
+
+@media (min-width: 560px) {
+  .panel-ia-contenido { border-radius: var(--radio-l); }
+}
+
+.boton-cerrar-ia {
+  position: absolute;
+  top: 0.9rem;
+  right: 0.9rem;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid var(--linea);
+  background: var(--carbon);
+  color: var(--piedra);
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.boton-cerrar-ia:hover { color: var(--marfil); border-color: var(--piedra-tenue); }
+
+.ia-paso h3 {
+  font-size: 1.2rem;
+  margin: 0.4rem 0 0.75rem;
+}
+
+.ia-paso p { color: var(--piedra); font-size: 0.9rem; line-height: 1.55; margin: 0 0 1rem; }
+
+.ia-acciones { display: flex; gap: 0.75rem; margin-top: 1.25rem; }
+.ia-acciones .boton { flex: 1; }
+
+.ia-selector-foto {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  min-height: 140px;
+  border: 1.5px dashed var(--linea);
+  border-radius: var(--radio-m);
+  color: var(--champan-vivo);
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: border-color 0.18s ease;
+}
+
+.ia-selector-foto:hover { border-color: var(--champan-borde); }
+.ia-selector-foto input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+
+.ia-cargando {
+  width: 34px;
+  height: 34px;
+  margin: 1.5rem auto;
+  border-radius: 50%;
+  border: 3px solid var(--linea);
+  border-top-color: var(--champan);
+  animation: girar-ia 0.85s linear infinite;
+}
+
+@keyframes girar-ia {
+  to { transform: rotate(360deg); }
+}
+
+#ia-paso-generando .boton-secundario { width: 100%; margin-top: 0.5rem; }
+
+#ia-imagen-resultado {
+  display: block;
+  width: 100%;
+  border-radius: var(--radio-m);
+  margin: 0 0 0.9rem;
+}
+
+.ia-disclaimer {
+  font-size: 0.76rem !important;
+  color: var(--piedra-tenue) !important;
+  text-align: center;
+}
+
+#ia-paso-resultado .boton-fantasma,
+#ia-paso-error .boton-fantasma { width: 100%; }
+
+/* ---------------------------------------------------------------- */
 /* Responsive fino                                                   */
 /* ---------------------------------------------------------------- */
 
@@ -990,6 +1130,59 @@ h1, h2, h3 {
 
     <p class="nota-pie" id="nota-pie"></p>
   </main>
+
+  <!-- Motor 2 -- IA Visual: panel opcional, cerrado por defecto. Nunca
+       se activa solo; el barbero lo abre desde una tarjeta de
+       resultado ya calculada por Motor 1. Si falla o no existe
+       proveedor, el resto de la pantalla de resultados sigue
+       funcionando con normalidad -- ver web_estatico/js/ia_visual/. -->
+  <div id="panel-ia-visual" class="panel-ia" hidden>
+    <div class="panel-ia-contenido">
+      <button id="ia-btn-cerrar" class="boton-cerrar-ia" type="button" aria-label="Cerrar">×</button>
+
+      <div id="ia-paso-consentimiento" class="ia-paso" hidden>
+        <span class="eyebrow">Visualización con IA (opcional)</span>
+        <h3>Antes de continuar</h3>
+        <p>Se usará una fotografía del cliente solo para generar una simulación aproximada de este corte. Es opcional, no se guarda de forma permanente y puedes cancelar en cualquier momento.</p>
+        <div class="ia-acciones">
+          <button id="ia-btn-cancelar-consentimiento" class="boton boton-secundario" type="button">Cancelar</button>
+          <button id="ia-btn-aceptar-consentimiento" class="boton boton-primario" type="button">Acepto, continuar</button>
+        </div>
+      </div>
+
+      <div id="ia-paso-foto" class="ia-paso" hidden>
+        <span class="eyebrow">Visualización con IA (opcional)</span>
+        <h3>Elige una fotografía</h3>
+        <label class="ia-selector-foto" for="ia-input-foto">
+          <input id="ia-input-foto" type="file" accept="image/*" capture="environment">
+          <span>Tomar o elegir foto</span>
+        </label>
+        <p id="ia-error-foto" class="aviso aviso-error" hidden></p>
+      </div>
+
+      <div id="ia-paso-generando" class="ia-paso" hidden>
+        <span class="eyebrow">Visualización con IA (opcional)</span>
+        <h3 id="ia-generando-titulo">Preparando…</h3>
+        <div class="ia-cargando" aria-hidden="true"></div>
+        <button id="ia-btn-cancelar-generando" class="boton boton-secundario" type="button">Cancelar</button>
+      </div>
+
+      <div id="ia-paso-resultado" class="ia-paso" hidden>
+        <span class="eyebrow">Visualización con IA (opcional)</span>
+        <h3>Así podría verse</h3>
+        <img id="ia-imagen-resultado" alt="Simulación del corte sobre la fotografía del cliente">
+        <p class="ia-disclaimer">Simulación aproximada generada por IA — no es una fotografía real.</p>
+        <button id="ia-btn-volver-resultado" class="boton boton-fantasma" type="button">Volver al resultado original</button>
+      </div>
+
+      <div id="ia-paso-error" class="ia-paso" hidden>
+        <span class="eyebrow">Visualización con IA (opcional)</span>
+        <h3>No se pudo generar la visualización</h3>
+        <p id="ia-mensaje-error" class="aviso aviso-error"></p>
+        <button id="ia-btn-volver-error" class="boton boton-fantasma" type="button">Volver al resultado original</button>
+      </div>
+    </div>
+  </div>
 
   <!-- Autocontenido: sin backend, sin fetch. Scripts como <script>
        planos (no modulos) para funcionar tambien via file://. -->
@@ -2401,6 +2594,458 @@ h1, h2, h3 {
 });
 
 </script>
+  <!-- Motor 2 -- IA Visual: modulo aislado, cargado despues de Motor 1
+       pero sin que Motor 1 lo referencie nunca. El proveedor mock es
+       el unico activo por defecto (ver docs/INTEGRACION_NANO_BANANA_PRO.md). -->
+  <script>
+// Motor 2 -- IA Visual: contrato de proveedor intercambiable.
+//
+// Cualquier proveedor de visualizacion (el mock local de pruebas, o
+// en el futuro un backend que hable con Nano Banana Pro u otro
+// servicio -- ver docs/INTEGRACION_NANO_BANANA_PRO.md) debe exponer
+// exactamente esta forma:
+//
+//   {
+//     nombre: string,
+//     generar: function(solicitud) -> Promise<ResultadoGeneracion>
+//   }
+//
+// solicitud          = { fotoDataUrl, instruccion, nombreCorte }
+// ResultadoGeneracion (exito) = { ok: true,  imagenDataUrl }
+// ResultadoGeneracion (fallo) = { ok: false, error }
+//
+// motor2.js nunca importa un proveedor por su nombre de archivo --
+// siempre pasa por este registro. Cambiar de proveedor (ej. activar
+// uno real en lugar del mock) nunca requiere tocar motor2.js.
+(function (global, factory) {
+  if (typeof module !== "undefined" && module.exports) {
+    module.exports = factory();
+  } else {
+    global.PROVEEDOR_IA = factory();
+  }
+})(typeof window !== "undefined" ? window : globalThis, function () {
+  "use strict";
+
+  var registro = {};
+  var nombreActivo = null;
+
+  function registrar(nombre, proveedor) {
+    if (!nombre || !proveedor || typeof proveedor.generar !== "function") {
+      throw new Error("Proveedor invalido: se requiere un 'nombre' y un metodo 'generar'.");
+    }
+    registro[nombre] = proveedor;
+    if (nombreActivo === null) nombreActivo = nombre;
+  }
+
+  function activar(nombre) {
+    if (!Object.prototype.hasOwnProperty.call(registro, nombre)) {
+      throw new Error("No hay ningun proveedor registrado con el nombre '" + nombre + "'.");
+    }
+    nombreActivo = nombre;
+  }
+
+  function obtenerActivo() {
+    if (nombreActivo === null) return null;
+    return registro[nombreActivo];
+  }
+
+  function nombreProveedorActivo() {
+    return nombreActivo;
+  }
+
+  function listar() {
+    return Object.keys(registro);
+  }
+
+  return {
+    registrar: registrar,
+    activar: activar,
+    obtenerActivo: obtenerActivo,
+    nombreProveedorActivo: nombreProveedorActivo,
+    listar: listar,
+  };
+});
+
+</script>
+  <script>
+// Motor 2 -- IA Visual: proveedor local de prueba (mock).
+//
+// No llama a ningun servicio externo ni usa ninguna clave de API: es
+// el proveedor activo por defecto porque GitHub Pages es un sitio
+// estatico y no puede guardar un secreto de forma segura (ver
+// docs/INTEGRACION_NANO_BANANA_PRO.md para lo que hace falta para
+// conectar un proveedor real sin exponer credenciales).
+//
+// Simula el tiempo de espera de una generacion real y devuelve la
+// MISMA fotografia del cliente con un aviso superpuesto, para poder
+// probar todo el flujo (consentimiento, validacion, estados, error)
+// sin depender de nada externo. Implementa el mismo contrato que
+// cualquier proveedor real (ver proveedor.js) -- el dia que exista un
+// backend seguro, se registra otro objeto con esa misma forma y se
+// activa con PROVEEDOR_IA.activar(...), sin tocar motor2.js.
+(function (global, factory) {
+  if (typeof module !== "undefined" && module.exports) {
+    module.exports = factory();
+  } else {
+    var proveedor = factory();
+    if (global.PROVEEDOR_IA) global.PROVEEDOR_IA.registrar(proveedor.nombre, proveedor);
+  }
+})(typeof window !== "undefined" ? window : globalThis, function () {
+  "use strict";
+
+  // En un entorno sin DOM (ej. las pruebas en Node) no hay forma de
+  // dibujar sobre un canvas -- se devuelve la foto sin modificar, para
+  // poder probar la maquina de estados de motor2.js sin depender del
+  // navegador.
+  // Reduce el tamano de fuente hasta que el texto quepa dentro del
+  // ancho disponible (con margen) -- evita que un lienzo angosto
+  // (foto vertical de celular) recorte el texto por los dos lados.
+  function ajustarFuenteParaCaber(ctx, texto, anchoDisponible, prefijoFuente, tamanoInicial, tamanoMinimo) {
+    var tamano = tamanoInicial;
+    while (tamano > tamanoMinimo) {
+      ctx.font = prefijoFuente + tamano + "px sans-serif";
+      if (ctx.measureText(texto).width <= anchoDisponible) break;
+      tamano -= 1;
+    }
+    return tamano;
+  }
+
+  function dibujarAviso(fotoDataUrl, textoInstruccion) {
+    if (typeof document === "undefined") {
+      return Promise.resolve(fotoDataUrl);
+    }
+    return new Promise(function (resolve, reject) {
+      var img = new Image();
+      img.onload = function () {
+        var lienzo = document.createElement("canvas");
+        lienzo.width = img.width;
+        lienzo.height = img.height;
+        var ctx = lienzo.getContext("2d");
+        ctx.drawImage(img, 0, 0);
+
+        var anchoDisponible = img.width * 0.92;
+        var alturaFranja = Math.max(48, Math.round(img.height * 0.12));
+        ctx.fillStyle = "rgba(11, 11, 13, 0.78)";
+        ctx.fillRect(0, img.height - alturaFranja, img.width, alturaFranja);
+
+        var textoPrincipal = "SIMULACION -- sin IA real";
+        ctx.textAlign = "center";
+        var tamanoPrincipal = ajustarFuenteParaCaber(
+          ctx, textoPrincipal, anchoDisponible, "bold ", Math.max(14, Math.round(alturaFranja * 0.3)), 10
+        );
+        ctx.fillStyle = "#e4c58a";
+        ctx.font = "bold " + tamanoPrincipal + "px sans-serif";
+        ctx.fillText(textoPrincipal, img.width / 2, img.height - alturaFranja * 0.55);
+
+        var textoSecundario = String(textoInstruccion || "").slice(0, 40);
+        if (textoSecundario) {
+          var tamanoSecundario = ajustarFuenteParaCaber(
+            ctx, textoSecundario, anchoDisponible, "", Math.max(11, Math.round(alturaFranja * 0.2)), 8
+          );
+          ctx.fillStyle = "#a29da8";
+          ctx.font = tamanoSecundario + "px sans-serif";
+          ctx.fillText(textoSecundario, img.width / 2, img.height - alturaFranja * 0.2);
+        }
+
+        resolve(lienzo.toDataURL("image/jpeg", 0.85));
+      };
+      img.onerror = function () {
+        reject(new Error("No se pudo leer la fotografia seleccionada."));
+      };
+      img.src = fotoDataUrl;
+    });
+  }
+
+  var proveedorMock = {
+    nombre: "mock-local",
+    generar: function (solicitud) {
+      if (!solicitud || !solicitud.fotoDataUrl) {
+        return Promise.resolve({ ok: false, error: "Falta la fotografia." });
+      }
+      return new Promise(function (resolve) {
+        setTimeout(function () {
+          dibujarAviso(solicitud.fotoDataUrl, solicitud.instruccion)
+            .then(function (imagenDataUrl) {
+              resolve({ ok: true, imagenDataUrl: imagenDataUrl });
+            })
+            .catch(function (error) {
+              resolve({ ok: false, error: error.message });
+            });
+        }, 900);
+      });
+    },
+  };
+
+  return proveedorMock;
+});
+
+</script>
+  <script>
+// Motor 2 -- IA Visual: adaptador Corte -> instruccion de generacion.
+//
+// Traduce los campos tecnicos que YA existen en el catalogo (ver
+// web_estatico/js/catalogo_datos.js, generado automaticamente desde
+// src/catalogo -- nunca editado a mano) a una frase corta que un
+// proveedor de generacion de imagen pueda usar como instruccion.
+//
+// Este archivo SOLO LEE del catalogo. No le agrega ningun campo, no
+// lo modifica, y no decide que corte es correcto para un rostro --
+// esa decision ya la tomo Motor 1. Motor 2 solo describe, en
+// palabras, el corte que el usuario ya eligio desde los resultados.
+//
+// `entrada_salida.generarRecomendacion` no expone `corte_id` a
+// proposito (ver el comentario en entrada_salida.js/servicio.py), asi
+// que este adaptador busca el corte completo por su nombre -- unico
+// por diseno entre los 15 cortes del catalogo.
+(function (global, factory) {
+  if (typeof module !== "undefined" && module.exports) {
+    module.exports = factory(require("../catalogo_datos.js"));
+  } else {
+    global.ADAPTADOR_CORTE = factory(global.CATALOGO_DATOS);
+  }
+})(typeof window !== "undefined" ? window : globalThis, function (CATALOGO_DATOS) {
+  "use strict";
+
+  var NOMBRE_VOLUMEN = { 0: "ninguno", 1: "bajo", 2: "medio", 3: "alto" };
+  var NOMBRE_EJE = { 1: "muy angular", 2: "angular", 3: "neutro", 4: "suave", 5: "muy suave" };
+
+  function buscarCortePorNombre(nombreCorte) {
+    var cortes = (CATALOGO_DATOS && CATALOGO_DATOS.cortes) || [];
+    for (var i = 0; i < cortes.length; i++) {
+      if (cortes[i].nombre === nombreCorte) return cortes[i];
+    }
+    return null;
+  }
+
+  function construirInstruccion(nombreCorte) {
+    var corte = buscarCortePorNombre(nombreCorte);
+    if (!corte) {
+      throw new Error(
+        "No se encontro en el catalogo el corte '" + nombreCorte + "'. " +
+        "El adaptador solo describe cortes que ya existen en el catalogo de Motor 1."
+      );
+    }
+    return (
+      "Corte de barberia: " + corte.nombre + ". " +
+      "Volumen arriba " + NOMBRE_VOLUMEN[corte.volumenArriba] + ", " +
+      "volumen lateral " + NOMBRE_VOLUMEN[corte.volumenLateral] + ", " +
+      "volumen posterior " + NOMBRE_VOLUMEN[corte.volumenPosterior] + ". " +
+      "Terminacion " + NOMBRE_EJE[corte.eje] + ". " +
+      "Mantener el mismo rostro, piel, barba y edad aparente del cliente; " +
+      "cambiar unicamente el peinado."
+    );
+  }
+
+  return {
+    buscarCortePorNombre: buscarCortePorNombre,
+    construirInstruccion: construirInstruccion,
+  };
+});
+
+</script>
+  <script>
+// Motor 2 -- IA Visual: orquestador.
+//
+// Maquina de estados que recorre exactamente los pasos pedidos:
+// seleccion de foto -> consentimiento -> validacion basica de calidad
+// -> preparacion de la solicitud -> estado de generacion -> resultado
+// -> error -> volver al resultado original.
+//
+// Reglas que este archivo protege:
+//   - Nunca importa ni requiere nada de src/motor, src/catalogo ni
+//     src/entrada_salida (ni sus versiones JS). Motor 1 no sabe que
+//     este archivo existe.
+//   - Nunca diagnostica rostro/textura/densidad/grosor.
+//   - Nunca elige un corte -- `iniciar(corte)` recibe el corte que el
+//     usuario ya selecciono desde los resultados de Motor 1.
+//   - El proveedor se recibe por inyeccion (parametro), nunca se
+//     importa un proveedor concreto por nombre de archivo -- así se
+//     puede probar con un proveedor falso y cambiar de proveedor real
+//     sin tocar este archivo.
+//   - Si el proveedor falla, se cae al estado ERROR sin lanzar
+//     excepciones sin capturar -- quien use este modulo (app.js)
+//     puede seguir mostrando el resto de la pantalla de resultados
+//     con normalidad.
+//   - No persiste la fotografia en ningun almacenamiento (localStorage,
+//     IndexedDB, etc.) -- vive solo en memoria mientras el panel esta
+//     abierto, y se descarta al volver al resultado original.
+(function (global, factory) {
+  if (typeof module !== "undefined" && module.exports) {
+    module.exports = factory(require("./adaptador_corte.js"));
+  } else {
+    global.MOTOR2 = factory(global.ADAPTADOR_CORTE);
+  }
+})(typeof window !== "undefined" ? window : globalThis, function (ADAPTADOR_CORTE) {
+  "use strict";
+
+  var PASOS = {
+    INACTIVO: "INACTIVO",
+    SELECCION_FOTO: "SELECCION_FOTO",
+    CONSENTIMIENTO: "CONSENTIMIENTO",
+    VALIDANDO_CALIDAD: "VALIDANDO_CALIDAD",
+    CALIDAD_RECHAZADA: "CALIDAD_RECHAZADA",
+    PREPARANDO_SOLICITUD: "PREPARANDO_SOLICITUD",
+    GENERANDO: "GENERANDO",
+    RESULTADO: "RESULTADO",
+    ERROR: "ERROR",
+  };
+
+  function estadoInicial() {
+    return { paso: PASOS.INACTIVO, fotoDataUrl: null, corte: null, resultado: null, error: null };
+  }
+
+  function crearMotor2(opciones) {
+    opciones = opciones || {};
+    var proveedor = opciones.proveedor || null;
+    var anchoMinimo = opciones.anchoMinimo || 200;
+    var altoMinimo = opciones.altoMinimo || 200;
+
+    var estado = estadoInicial();
+    var escuchas = [];
+
+    function emitir() {
+      escuchas.forEach(function (fn) { fn(estado); });
+    }
+
+    function suscribir(fn) {
+      escuchas.push(fn);
+      return function desuscribir() {
+        var indice = escuchas.indexOf(fn);
+        if (indice !== -1) escuchas.splice(indice, 1);
+      };
+    }
+
+    // Paso 1: el usuario ya eligio un corte en los resultados de
+    // Motor 1 -- ese corte llega aqui completo (nombre, familia,
+    // etc.), Motor 2 nunca vuelve a decidir si es un buen corte.
+    function iniciar(corte) {
+      estado = estadoInicial();
+      estado.paso = PASOS.SELECCION_FOTO;
+      estado.corte = corte;
+      emitir();
+    }
+
+    // Paso 2: seleccion de foto (el llamador ya la convirtio a
+    // data URL desde el input de archivo/camara).
+    function seleccionarFoto(fotoDataUrl) {
+      if (estado.paso !== PASOS.SELECCION_FOTO && estado.paso !== PASOS.CALIDAD_RECHAZADA) return;
+      estado.fotoDataUrl = fotoDataUrl;
+      estado.error = null;
+      estado.paso = PASOS.CONSENTIMIENTO;
+      emitir();
+    }
+
+    // Paso 3: consentimiento explicito antes de procesar la foto.
+    function darConsentimiento() {
+      if (estado.paso !== PASOS.CONSENTIMIENTO) return;
+      estado.paso = PASOS.VALIDANDO_CALIDAD;
+      emitir();
+      validarCalidad(estado.fotoDataUrl).then(function (esValida) {
+        if (estado.paso !== PASOS.VALIDANDO_CALIDAD) return; // se cancelo mientras tanto
+        if (!esValida) {
+          estado.paso = PASOS.CALIDAD_RECHAZADA;
+          estado.error = "La fotografia no se pudo leer o es demasiado pequena. Elige otra.";
+          emitir();
+          return;
+        }
+        prepararYGenerar();
+      });
+    }
+
+    // Paso 4: validacion basica de calidad -- solo confirma que la
+    // imagen carga y tiene un tamano minimo razonable. Nunca intenta
+    // evaluar forma de rostro, textura, densidad ni grosor: eso sigue
+    // siendo trabajo humano, nunca de este motor.
+    function validarCalidad(fotoDataUrl) {
+      if (typeof Image === "undefined") {
+        // Sin DOM (pruebas en Node): no hay como decodificar la
+        // imagen aqui. Se asume valida -- este camino se prueba por
+        // separado, inyectando el resultado.
+        return Promise.resolve(true);
+      }
+      return new Promise(function (resolve) {
+        var img = new Image();
+        img.onload = function () {
+          resolve(img.width >= anchoMinimo && img.height >= altoMinimo);
+        };
+        img.onerror = function () { resolve(false); };
+        img.src = fotoDataUrl;
+      });
+    }
+
+    // Paso 5-6: preparar la solicitud (adaptador corte -> instruccion)
+    // y pasar a estado de generacion.
+    function prepararYGenerar() {
+      estado.paso = PASOS.PREPARANDO_SOLICITUD;
+      emitir();
+
+      var instruccion;
+      try {
+        instruccion = ADAPTADOR_CORTE.construirInstruccion(estado.corte.nombre);
+      } catch (error) {
+        estado.paso = PASOS.ERROR;
+        estado.error = error.message;
+        emitir();
+        return;
+      }
+
+      if (!proveedor || typeof proveedor.generar !== "function") {
+        estado.paso = PASOS.ERROR;
+        estado.error = "No hay ningun proveedor de IA visual disponible en este momento.";
+        emitir();
+        return;
+      }
+
+      estado.paso = PASOS.GENERANDO;
+      emitir();
+
+      proveedor
+        .generar({ fotoDataUrl: estado.fotoDataUrl, instruccion: instruccion, nombreCorte: estado.corte.nombre })
+        .then(function (resultado) {
+          if (estado.paso !== PASOS.GENERANDO) return; // se volvio al original mientras generaba
+          if (resultado && resultado.ok) {
+            estado.paso = PASOS.RESULTADO;
+            estado.resultado = resultado.imagenDataUrl;
+          } else {
+            estado.paso = PASOS.ERROR;
+            estado.error = (resultado && resultado.error) || "El proveedor no pudo generar la visualizacion.";
+          }
+          emitir();
+        })
+        .catch(function (error) {
+          if (estado.paso !== PASOS.GENERANDO) return;
+          estado.paso = PASOS.ERROR;
+          estado.error = error && error.message ? error.message : "Ocurrio un error inesperado.";
+          emitir();
+        });
+    }
+
+    // Paso 7-8: volver al resultado original de Motor 1 -- cierra el
+    // panel, descarta la foto de memoria (nunca se guardo en disco ni
+    // en almacenamiento persistente).
+    function volverAResultadoOriginal() {
+      estado = estadoInicial();
+      emitir();
+    }
+
+    function obtenerEstado() {
+      return estado;
+    }
+
+    return {
+      iniciar: iniciar,
+      seleccionarFoto: seleccionarFoto,
+      darConsentimiento: darConsentimiento,
+      volverAResultadoOriginal: volverAResultadoOriginal,
+      suscribir: suscribir,
+      obtenerEstado: obtenerEstado,
+    };
+  }
+
+  return { PASOS: PASOS, crearMotor2: crearMotor2 };
+});
+
+</script>
   <script>
 "use strict";
 
@@ -2758,7 +3403,110 @@ function crearTarjetaRecomendacion(rec, posicion) {
     `<span>Mantenimiento: <strong>${rec.mantenimiento}</strong></span>`;
   tarjeta.appendChild(pie);
 
+  // Motor 2 -- IA Visual (opcional): el corte que se le pasa aqui es
+  // exactamente el que ya decidio Motor 1 (rec.nombre/rec.familia).
+  // Este boton nunca aparece marcado ni activado por defecto.
+  if (typeof abrirPanelIaVisual === "function") {
+    const botonIa = document.createElement("button");
+    botonIa.type = "button";
+    botonIa.className = "boton-ia-visual";
+    botonIa.innerHTML = ICONOS.UTIL.info + "<span>Visualizar con IA (opcional)</span>";
+    botonIa.addEventListener("click", () => abrirPanelIaVisual({ nombre: rec.nombre, familia: rec.familia }));
+    tarjeta.appendChild(botonIa);
+  }
+
   return tarjeta;
+}
+
+// -- Motor 2 -- IA Visual (opcional) --------------------------------------
+// Todo este bloque es aditivo y nunca toca ENTRADA_SALIDA ni MOTOR: solo
+// reacciona a un corte que Motor 1 ya recomendo (ver crearTarjetaRecomendacion
+// mas arriba). Si por algun motivo MOTOR2/PROVEEDOR_IA no estuvieran
+// cargados, este bloque no se ejecuta, abrirPanelIaVisual no se define,
+// y el boton "Visualizar con IA" simplemente no aparece -- el resto de
+// la app sigue funcionando exactamente igual.
+if (typeof MOTOR2 !== "undefined" && typeof PROVEEDOR_IA !== "undefined") {
+  const motor2 = MOTOR2.crearMotor2({ proveedor: PROVEEDOR_IA.obtenerActivo() });
+  const PASOS_IA = MOTOR2.PASOS;
+  const TITULOS_GENERANDO = {};
+  TITULOS_GENERANDO[PASOS_IA.VALIDANDO_CALIDAD] = "Comprobando la fotografía…";
+  TITULOS_GENERANDO[PASOS_IA.PREPARANDO_SOLICITUD] = "Preparando la solicitud…";
+  TITULOS_GENERANDO[PASOS_IA.GENERANDO] = "Generando visualización…";
+
+  const PASOS_IDS_IA = ["ia-paso-consentimiento", "ia-paso-foto", "ia-paso-generando", "ia-paso-resultado", "ia-paso-error"];
+
+  function renderPanelIa(estado) {
+    if (estado.paso === PASOS_IA.INACTIVO) {
+      el("panel-ia-visual").hidden = true;
+      return;
+    }
+
+    el("panel-ia-visual").hidden = false;
+    PASOS_IDS_IA.forEach((id) => { el(id).hidden = true; });
+
+    if (estado.paso === PASOS_IA.CONSENTIMIENTO) {
+      el("ia-paso-consentimiento").hidden = false;
+    } else if (estado.paso === PASOS_IA.SELECCION_FOTO) {
+      el("ia-paso-foto").hidden = false;
+      el("ia-error-foto").hidden = true;
+    } else if (estado.paso === PASOS_IA.CALIDAD_RECHAZADA) {
+      el("ia-paso-foto").hidden = false;
+      el("ia-error-foto").textContent = estado.error;
+      el("ia-error-foto").hidden = false;
+    } else if (TITULOS_GENERANDO[estado.paso]) {
+      el("ia-paso-generando").hidden = false;
+      el("ia-generando-titulo").textContent = TITULOS_GENERANDO[estado.paso];
+    } else if (estado.paso === PASOS_IA.RESULTADO) {
+      el("ia-paso-resultado").hidden = false;
+      el("ia-imagen-resultado").src = estado.resultado;
+    } else if (estado.paso === PASOS_IA.ERROR) {
+      el("ia-paso-error").hidden = false;
+      el("ia-mensaje-error").textContent = estado.error;
+    }
+  }
+
+  motor2.suscribir(renderPanelIa);
+
+  // Punto de entrada unico: una tarjeta de resultado ya calculada por
+  // Motor 1 pasa su corte aqui. Motor 2 nunca elige por su cuenta.
+  window.abrirPanelIaVisual = function abrirPanelIaVisual(corte) {
+    motor2.iniciar(corte);
+  };
+
+  function cerrarPanelIa() {
+    // La fotografia solo vivio en la variable de estado de motor2 (en
+    // memoria); al volver al original se descarta la referencia, sin
+    // haber tocado localStorage, IndexedDB ni ningun almacenamiento.
+    el("ia-input-foto").value = "";
+    motor2.volverAResultadoOriginal();
+  }
+
+  el("ia-btn-cerrar").addEventListener("click", cerrarPanelIa);
+  el("ia-btn-volver-resultado").addEventListener("click", cerrarPanelIa);
+  el("ia-btn-volver-error").addEventListener("click", cerrarPanelIa);
+  el("ia-btn-cancelar-consentimiento").addEventListener("click", cerrarPanelIa);
+  el("ia-btn-cancelar-generando").addEventListener("click", cerrarPanelIa);
+
+  el("ia-btn-aceptar-consentimiento").addEventListener("click", () => {
+    motor2.darConsentimiento();
+  });
+
+  el("ia-input-foto").addEventListener("change", (evento) => {
+    const archivo = evento.target.files && evento.target.files[0];
+    if (!archivo) return;
+    const lector = new FileReader();
+    lector.onload = () => {
+      // Orden pedido: seleccion de foto -> consentimiento -> validacion
+      // de calidad (ver motor2.js: seleccionarFoto() ya avanza a
+      // CONSENTIMIENTO, la validacion ocurre recien al aceptar).
+      motor2.seleccionarFoto(lector.result);
+    };
+    lector.onerror = () => {
+      el("ia-error-foto").textContent = "No se pudo leer la fotografía. Intenta con otra.";
+      el("ia-error-foto").hidden = false;
+    };
+    lector.readAsDataURL(archivo);
+  });
 }
 
 mostrarSeccion("intro");

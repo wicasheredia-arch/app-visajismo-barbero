@@ -70,12 +70,72 @@
     <p class="nota-pie" id="nota-pie"></p>
   </main>
 
+  <!-- Motor 2 -- IA Visual: panel opcional, cerrado por defecto. Nunca
+       se activa solo; el barbero lo abre desde una tarjeta de
+       resultado ya calculada por Motor 1. Si falla o no existe
+       proveedor, el resto de la pantalla de resultados sigue
+       funcionando con normalidad -- ver web_estatico/js/ia_visual/. -->
+  <div id="panel-ia-visual" class="panel-ia" hidden>
+    <div class="panel-ia-contenido">
+      <button id="ia-btn-cerrar" class="boton-cerrar-ia" type="button" aria-label="Cerrar">×</button>
+
+      <div id="ia-paso-consentimiento" class="ia-paso" hidden>
+        <span class="eyebrow">Visualización con IA (opcional)</span>
+        <h3>Antes de continuar</h3>
+        <p>Se usará una fotografía del cliente solo para generar una simulación aproximada de este corte. Es opcional, no se guarda de forma permanente y puedes cancelar en cualquier momento.</p>
+        <div class="ia-acciones">
+          <button id="ia-btn-cancelar-consentimiento" class="boton boton-secundario" type="button">Cancelar</button>
+          <button id="ia-btn-aceptar-consentimiento" class="boton boton-primario" type="button">Acepto, continuar</button>
+        </div>
+      </div>
+
+      <div id="ia-paso-foto" class="ia-paso" hidden>
+        <span class="eyebrow">Visualización con IA (opcional)</span>
+        <h3>Elige una fotografía</h3>
+        <label class="ia-selector-foto" for="ia-input-foto">
+          <input id="ia-input-foto" type="file" accept="image/*" capture="environment">
+          <span>Tomar o elegir foto</span>
+        </label>
+        <p id="ia-error-foto" class="aviso aviso-error" hidden></p>
+      </div>
+
+      <div id="ia-paso-generando" class="ia-paso" hidden>
+        <span class="eyebrow">Visualización con IA (opcional)</span>
+        <h3 id="ia-generando-titulo">Preparando…</h3>
+        <div class="ia-cargando" aria-hidden="true"></div>
+        <button id="ia-btn-cancelar-generando" class="boton boton-secundario" type="button">Cancelar</button>
+      </div>
+
+      <div id="ia-paso-resultado" class="ia-paso" hidden>
+        <span class="eyebrow">Visualización con IA (opcional)</span>
+        <h3>Así podría verse</h3>
+        <img id="ia-imagen-resultado" alt="Simulación del corte sobre la fotografía del cliente">
+        <p class="ia-disclaimer">Simulación aproximada generada por IA — no es una fotografía real.</p>
+        <button id="ia-btn-volver-resultado" class="boton boton-fantasma" type="button">Volver al resultado original</button>
+      </div>
+
+      <div id="ia-paso-error" class="ia-paso" hidden>
+        <span class="eyebrow">Visualización con IA (opcional)</span>
+        <h3>No se pudo generar la visualización</h3>
+        <p id="ia-mensaje-error" class="aviso aviso-error"></p>
+        <button id="ia-btn-volver-error" class="boton boton-fantasma" type="button">Volver al resultado original</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Autocontenido: sin backend, sin fetch. Scripts como <script>
        planos (no modulos) para funcionar tambien via file://. -->
   <script src="js/iconos.js"></script>
   <script src="js/catalogo_datos.js"></script>
   <script src="js/motor.js"></script>
   <script src="js/entrada_salida.js"></script>
+  <!-- Motor 2 -- IA Visual: modulo aislado, cargado despues de Motor 1
+       pero sin que Motor 1 lo referencie nunca. El proveedor mock es
+       el unico activo por defecto (ver docs/INTEGRACION_NANO_BANANA_PRO.md). -->
+  <script src="js/ia_visual/proveedor.js"></script>
+  <script src="js/ia_visual/proveedor_mock.js"></script>
+  <script src="js/ia_visual/adaptador_corte.js"></script>
+  <script src="js/ia_visual/motor2.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

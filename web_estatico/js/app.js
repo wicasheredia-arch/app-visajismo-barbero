@@ -354,7 +354,110 @@ function crearTarjetaRecomendacion(rec, posicion) {
     `<span>Mantenimiento: <strong>${rec.mantenimiento}</strong></span>`;
   tarjeta.appendChild(pie);
 
+  // Motor 2 -- IA Visual (opcional): el corte que se le pasa aqui es
+  // exactamente el que ya decidio Motor 1 (rec.nombre/rec.familia).
+  // Este boton nunca aparece marcado ni activado por defecto.
+  if (typeof abrirPanelIaVisual === "function") {
+    const botonIa = document.createElement("button");
+    botonIa.type = "button";
+    botonIa.className = "boton-ia-visual";
+    botonIa.innerHTML = ICONOS.UTIL.info + "<span>Visualizar con IA (opcional)</span>";
+    botonIa.addEventListener("click", () => abrirPanelIaVisual({ nombre: rec.nombre, familia: rec.familia }));
+    tarjeta.appendChild(botonIa);
+  }
+
   return tarjeta;
+}
+
+// -- Motor 2 -- IA Visual (opcional) --------------------------------------
+// Todo este bloque es aditivo y nunca toca ENTRADA_SALIDA ni MOTOR: solo
+// reacciona a un corte que Motor 1 ya recomendo (ver crearTarjetaRecomendacion
+// mas arriba). Si por algun motivo MOTOR2/PROVEEDOR_IA no estuvieran
+// cargados, este bloque no se ejecuta, abrirPanelIaVisual no se define,
+// y el boton "Visualizar con IA" simplemente no aparece -- el resto de
+// la app sigue funcionando exactamente igual.
+if (typeof MOTOR2 !== "undefined" && typeof PROVEEDOR_IA !== "undefined") {
+  const motor2 = MOTOR2.crearMotor2({ proveedor: PROVEEDOR_IA.obtenerActivo() });
+  const PASOS_IA = MOTOR2.PASOS;
+  const TITULOS_GENERANDO = {};
+  TITULOS_GENERANDO[PASOS_IA.VALIDANDO_CALIDAD] = "Comprobando la fotografía…";
+  TITULOS_GENERANDO[PASOS_IA.PREPARANDO_SOLICITUD] = "Preparando la solicitud…";
+  TITULOS_GENERANDO[PASOS_IA.GENERANDO] = "Generando visualización…";
+
+  const PASOS_IDS_IA = ["ia-paso-consentimiento", "ia-paso-foto", "ia-paso-generando", "ia-paso-resultado", "ia-paso-error"];
+
+  function renderPanelIa(estado) {
+    if (estado.paso === PASOS_IA.INACTIVO) {
+      el("panel-ia-visual").hidden = true;
+      return;
+    }
+
+    el("panel-ia-visual").hidden = false;
+    PASOS_IDS_IA.forEach((id) => { el(id).hidden = true; });
+
+    if (estado.paso === PASOS_IA.CONSENTIMIENTO) {
+      el("ia-paso-consentimiento").hidden = false;
+    } else if (estado.paso === PASOS_IA.SELECCION_FOTO) {
+      el("ia-paso-foto").hidden = false;
+      el("ia-error-foto").hidden = true;
+    } else if (estado.paso === PASOS_IA.CALIDAD_RECHAZADA) {
+      el("ia-paso-foto").hidden = false;
+      el("ia-error-foto").textContent = estado.error;
+      el("ia-error-foto").hidden = false;
+    } else if (TITULOS_GENERANDO[estado.paso]) {
+      el("ia-paso-generando").hidden = false;
+      el("ia-generando-titulo").textContent = TITULOS_GENERANDO[estado.paso];
+    } else if (estado.paso === PASOS_IA.RESULTADO) {
+      el("ia-paso-resultado").hidden = false;
+      el("ia-imagen-resultado").src = estado.resultado;
+    } else if (estado.paso === PASOS_IA.ERROR) {
+      el("ia-paso-error").hidden = false;
+      el("ia-mensaje-error").textContent = estado.error;
+    }
+  }
+
+  motor2.suscribir(renderPanelIa);
+
+  // Punto de entrada unico: una tarjeta de resultado ya calculada por
+  // Motor 1 pasa su corte aqui. Motor 2 nunca elige por su cuenta.
+  window.abrirPanelIaVisual = function abrirPanelIaVisual(corte) {
+    motor2.iniciar(corte);
+  };
+
+  function cerrarPanelIa() {
+    // La fotografia solo vivio en la variable de estado de motor2 (en
+    // memoria); al volver al original se descarta la referencia, sin
+    // haber tocado localStorage, IndexedDB ni ningun almacenamiento.
+    el("ia-input-foto").value = "";
+    motor2.volverAResultadoOriginal();
+  }
+
+  el("ia-btn-cerrar").addEventListener("click", cerrarPanelIa);
+  el("ia-btn-volver-resultado").addEventListener("click", cerrarPanelIa);
+  el("ia-btn-volver-error").addEventListener("click", cerrarPanelIa);
+  el("ia-btn-cancelar-consentimiento").addEventListener("click", cerrarPanelIa);
+  el("ia-btn-cancelar-generando").addEventListener("click", cerrarPanelIa);
+
+  el("ia-btn-aceptar-consentimiento").addEventListener("click", () => {
+    motor2.darConsentimiento();
+  });
+
+  el("ia-input-foto").addEventListener("change", (evento) => {
+    const archivo = evento.target.files && evento.target.files[0];
+    if (!archivo) return;
+    const lector = new FileReader();
+    lector.onload = () => {
+      // Orden pedido: seleccion de foto -> consentimiento -> validacion
+      // de calidad (ver motor2.js: seleccionarFoto() ya avanza a
+      // CONSENTIMIENTO, la validacion ocurre recien al aceptar).
+      motor2.seleccionarFoto(lector.result);
+    };
+    lector.onerror = () => {
+      el("ia-error-foto").textContent = "No se pudo leer la fotografía. Intenta con otra.";
+      el("ia-error-foto").hidden = false;
+    };
+    lector.readAsDataURL(archivo);
+  });
 }
 
 mostrarSeccion("intro");

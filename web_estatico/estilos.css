@@ -907,6 +907,146 @@ h1, h2, h3 {
 .nota-pie svg { width: 13px; height: 13px; }
 
 /* ---------------------------------------------------------------- */
+/* Motor 2 -- IA Visual (opcional)                                    */
+/* Panel superpuesto, cerrado por defecto. Reutiliza los mismos       */
+/* tokens de marca -- nunca colores nuevos -- para que se sienta      */
+/* parte de la misma app, no un anadido ajeno.                        */
+/* ---------------------------------------------------------------- */
+
+.boton-ia-visual {
+  width: 100%;
+  margin-top: 0.85rem;
+  padding: 0.65rem 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: transparent;
+  border: 1px dashed var(--linea);
+  border-radius: var(--radio-s);
+  color: var(--piedra);
+  font-family: var(--fuente-cuerpo);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.18s ease, color 0.18s ease;
+}
+
+.boton-ia-visual:hover { border-color: var(--champan-borde); color: var(--champan-vivo); }
+.boton-ia-visual svg { width: 15px; height: 15px; flex: none; }
+
+.panel-ia {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: rgba(11, 11, 13, 0.78);
+  padding: 0 0 env(safe-area-inset-bottom, 0px);
+  animation: entrar-paso 0.25s ease;
+}
+
+@media (min-width: 560px) {
+  .panel-ia { align-items: center; }
+}
+
+.panel-ia-contenido {
+  position: relative;
+  width: 100%;
+  max-width: 480px;
+  max-height: 88vh;
+  overflow-y: auto;
+  background: linear-gradient(180deg, var(--carbon-alto) 0%, var(--carbon) 100%);
+  border: 1px solid var(--linea);
+  border-radius: var(--radio-l) var(--radio-l) 0 0;
+  padding: 1.75rem 1.4rem 1.9rem;
+  box-shadow: var(--sombra-elevada);
+}
+
+@media (min-width: 560px) {
+  .panel-ia-contenido { border-radius: var(--radio-l); }
+}
+
+.boton-cerrar-ia {
+  position: absolute;
+  top: 0.9rem;
+  right: 0.9rem;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid var(--linea);
+  background: var(--carbon);
+  color: var(--piedra);
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.boton-cerrar-ia:hover { color: var(--marfil); border-color: var(--piedra-tenue); }
+
+.ia-paso h3 {
+  font-size: 1.2rem;
+  margin: 0.4rem 0 0.75rem;
+}
+
+.ia-paso p { color: var(--piedra); font-size: 0.9rem; line-height: 1.55; margin: 0 0 1rem; }
+
+.ia-acciones { display: flex; gap: 0.75rem; margin-top: 1.25rem; }
+.ia-acciones .boton { flex: 1; }
+
+.ia-selector-foto {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  min-height: 140px;
+  border: 1.5px dashed var(--linea);
+  border-radius: var(--radio-m);
+  color: var(--champan-vivo);
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: border-color 0.18s ease;
+}
+
+.ia-selector-foto:hover { border-color: var(--champan-borde); }
+.ia-selector-foto input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+
+.ia-cargando {
+  width: 34px;
+  height: 34px;
+  margin: 1.5rem auto;
+  border-radius: 50%;
+  border: 3px solid var(--linea);
+  border-top-color: var(--champan);
+  animation: girar-ia 0.85s linear infinite;
+}
+
+@keyframes girar-ia {
+  to { transform: rotate(360deg); }
+}
+
+#ia-paso-generando .boton-secundario { width: 100%; margin-top: 0.5rem; }
+
+#ia-imagen-resultado {
+  display: block;
+  width: 100%;
+  border-radius: var(--radio-m);
+  margin: 0 0 0.9rem;
+}
+
+.ia-disclaimer {
+  font-size: 0.76rem !important;
+  color: var(--piedra-tenue) !important;
+  text-align: center;
+}
+
+#ia-paso-resultado .boton-fantasma,
+#ia-paso-error .boton-fantasma { width: 100%; }
+
+/* ---------------------------------------------------------------- */
 /* Responsive fino                                                   */
 /* ---------------------------------------------------------------- */
 
