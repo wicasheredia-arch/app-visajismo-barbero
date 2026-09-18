@@ -377,7 +377,7 @@ function crearTarjetaRecomendacion(rec, posicion) {
 // y el boton "Visualizar con IA" simplemente no aparece -- el resto de
 // la app sigue funcionando exactamente igual.
 if (typeof MOTOR2 !== "undefined" && typeof PROVEEDOR_IA !== "undefined") {
-  const motor2 = MOTOR2.crearMotor2({ proveedor: PROVEEDOR_IA.obtenerActivo() });
+  let motor2 = MOTOR2.crearMotor2({ proveedor: PROVEEDOR_IA.obtenerActivo() });
   const PASOS_IA = MOTOR2.PASOS;
   const TITULOS_GENERANDO = {};
   TITULOS_GENERANDO[PASOS_IA.VALIDANDO_CALIDAD] = "Comprobando la fotografía…";
@@ -420,7 +420,16 @@ if (typeof MOTOR2 !== "undefined" && typeof PROVEEDOR_IA !== "undefined") {
 
   // Punto de entrada unico: una tarjeta de resultado ya calculada por
   // Motor 1 pasa su corte aqui. Motor 2 nunca elige por su cuenta.
+  //
+  // Se recrea motor2 en cada apertura, tomando el proveedor activo en
+  // ESE momento (PROVEEDOR_IA.obtenerActivo()) -- si no se hiciera
+  // asi, activar un proveedor distinto (ej. nano-banana-pro en lugar
+  // del mock) despues de cargar la pagina nunca tendria efecto,
+  // porque la instancia original quedaria atada para siempre al
+  // proveedor que estaba activo en el momento de crearla.
   window.abrirPanelIaVisual = function abrirPanelIaVisual(corte) {
+    motor2 = MOTOR2.crearMotor2({ proveedor: PROVEEDOR_IA.obtenerActivo() });
+    motor2.suscribir(renderPanelIa);
     motor2.iniciar(corte);
   };
 

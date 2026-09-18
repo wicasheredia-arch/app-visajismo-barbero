@@ -56,6 +56,7 @@
 
     var estado = estadoInicial();
     var escuchas = [];
+    var promesaActual = null;
 
     function emitir() {
       escuchas.forEach(function (fn) { fn(estado); });
@@ -153,8 +154,17 @@
       estado.paso = PASOS.GENERANDO;
       emitir();
 
-      proveedor
-        .generar({ fotoDataUrl: estado.fotoDataUrl, instruccion: instruccion, nombreCorte: estado.corte.nombre })
+      // Se guarda la promesa devuelta por el proveedor para poder
+      // cancelar la llamada real (no solo la UI) si el usuario toca
+      // "Cancelar" -- ver volverAResultadoOriginal(). Si el proveedor
+      // no soporta cancelacion (ej. proveedor_mock.js), promesaActual.cancelar
+      // simplemente no existe y no se llama a nada; el comportamiento
+      // de "ignorar el resultado si ya no estamos en GENERANDO" sigue
+      // protegiendo la UI igual que antes.
+      promesaActual = proveedor
+        .generar({ fotoDataUrl: estado.fotoDataUrl, instruccion: instruccion, nombreCorte: estado.corte.nombre });
+
+      promesaActual
         .then(function (resultado) {
           if (estado.paso !== PASOS.GENERANDO) return; // se volvio al original mientras generaba
           if (resultado && resultado.ok) {
@@ -176,8 +186,13 @@
 
     // Paso 7-8: volver al resultado original de Motor 1 -- cierra el
     // panel, descarta la foto de memoria (nunca se guardo en disco ni
-    // en almacenamiento persistente).
+    // en almacenamiento persistente), y cancela la llamada real en
+    // curso si el proveedor activo lo permite.
     function volverAResultadoOriginal() {
+      if (promesaActual && typeof promesaActual.cancelar === "function") {
+        promesaActual.cancelar();
+      }
+      promesaActual = null;
       estado = estadoInicial();
       emitir();
     }

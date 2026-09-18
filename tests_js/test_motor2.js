@@ -193,6 +193,57 @@ verificar("sin proveedor configurado, motor2 llega a ERROR de forma controlada (
   assert.ok([MOTOR2.PASOS.ERROR, MOTOR2.PASOS.VALIDANDO_CALIDAD].indexOf(ultimoEstado.paso) !== -1);
 });
 
+function esperarEstado(motor2, paso) {
+  return new Promise((resolve) => {
+    if (motor2.obtenerEstado().paso === paso) { resolve(); return; }
+    const desuscribir = motor2.suscribir((estado) => {
+      if (estado.paso === paso) { desuscribir(); resolve(); }
+    });
+  });
+}
+
+const pruebaCancelacionReal = esperarAsync(
+  "volverAResultadoOriginal cancela la llamada real si el proveedor lo soporta",
+  (async () => {
+    let cancelada = false;
+    const promesaColgada = new Promise(() => {}); // nunca se resuelve, simula una generacion en curso
+    promesaColgada.cancelar = () => { cancelada = true; };
+    const proveedorCancelable = { nombre: "cancelable", generar: () => promesaColgada };
+
+    const motor2 = MOTOR2.crearMotor2({ proveedor: proveedorCancelable });
+    motor2.iniciar(cortePrueba);
+    motor2.seleccionarFoto("data:image/png;base64,FOTO");
+    motor2.darConsentimiento();
+    await esperarEstado(motor2, MOTOR2.PASOS.GENERANDO);
+    motor2.volverAResultadoOriginal();
+    return { cancelada, paso: motor2.obtenerEstado().paso };
+  })(),
+  ({ cancelada, paso }) => {
+    assert.strictEqual(cancelada, true);
+    assert.strictEqual(paso, MOTOR2.PASOS.INACTIVO);
+  }
+);
+
+const pruebaSinCancelarNoLanza = esperarAsync(
+  "volverAResultadoOriginal no lanza si el proveedor no soporta cancelacion (ej. proveedor_mock.js)",
+  (async () => {
+    const promesaSinCancelar = new Promise(() => {}); // sin metodo .cancelar, como el mock
+    const proveedorSinCancelar = { nombre: "sin-cancelar", generar: () => promesaSinCancelar };
+
+    const motor2 = MOTOR2.crearMotor2({ proveedor: proveedorSinCancelar });
+    motor2.iniciar(cortePrueba);
+    motor2.seleccionarFoto("data:image/png;base64,FOTO");
+    motor2.darConsentimiento();
+    await esperarEstado(motor2, MOTOR2.PASOS.GENERANDO);
+    // No debe lanzar ninguna excepcion aunque no exista .cancelar.
+    motor2.volverAResultadoOriginal();
+    return motor2.obtenerEstado().paso;
+  })(),
+  (paso) => {
+    assert.strictEqual(paso, MOTOR2.PASOS.INACTIVO);
+  }
+);
+
 verificar("volverAResultadoOriginal descarta la foto de memoria (no persiste nada)", () => {
   const motor2 = MOTOR2.crearMotor2({ proveedor: crearProveedorFalso("exito") });
   motor2.iniciar(cortePrueba);
@@ -240,7 +291,7 @@ verificar("requerir los modulos de Motor 2 no agrega nada a MOTOR ni a ENTRADA_S
 
 // -- resultado -------------------------------------------------------------
 
-Promise.all([pruebaMockOk, pruebaMockSinFoto, pruebaFlujoExito, pruebaFlujoFalloControlado, pruebaFlujoProveedorCaido]).then(() => {
+Promise.all([pruebaMockOk, pruebaMockSinFoto, pruebaFlujoExito, pruebaFlujoFalloControlado, pruebaFlujoProveedorCaido, pruebaCancelacionReal, pruebaSinCancelarNoLanza]).then(() => {
   console.log(`${aprobadas} verificaciones aprobadas, ${fallidas} fallidas (Motor 2 -- IA Visual).`);
   process.exit(fallidas === 0 ? 0 : 1);
 });

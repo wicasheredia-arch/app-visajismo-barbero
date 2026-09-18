@@ -1,0 +1,14 @@
+{
+  "name": "visage-backend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Backend minimo de VISAGE: unico lugar donde vive la clave de Gemini para Motor 2 -- IA Visual. Sin dependencias externas.",
+  "main": "servidor.js",
+  "scripts": {
+    "start": "node servidor.js",
+    "test": "node test_servidor.js"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
